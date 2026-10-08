@@ -1,0 +1,28 @@
+<!-- FILE PURPOSE: FARMER DASHBOARD. Hinglish: farmer ke scans/activity ka summary. -->
+{% extends "base.html" %}
+{% block title %}{{ texts.dashboard_title }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="hero"><h1>📊 {{ texts.dashboard_title }}</h1><p>{{ texts.welcome }}, {{ user }}! &nbsp;<a href="{{ url_for('change_password') }}">🔑 {{ texts.change_password }}</a></p></section>
+<div class="grid"><div class="stat"><b>{{scans|length}}</b><br>{{texts.history}}</div><div class="stat"><b>100+</b><br>{{texts.language}}</div><div class="stat"><b>📷</b><br>{{texts.camera}}</div></div>
+<section class="card"><h2>📊 {{ tr("Scan Analytics", language) }}</h2>
+{% if stats.diagnosed_count >= 1 %}
+<div class="grid">
+  <div class="stat"><b>{{ stats.scan_count }}</b><br>{{ tr("Total scans", language) }}</div>
+  <div class="stat"><b>{{ stats.avg_health if stats.avg_health is not none else "—" }}</b><br>{{ tr("Average health score", language) }}</div>
+</div>
+<div class="grid">
+  <div class="info"><h3>{{ tr("Disease distribution", language) }}</h3>
+    {% for name, n, pct in stats.distribution %}<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px"><span>{{ name }}</span><b>{{ n }}</b></div><div style="background:#e5e7eb;border-radius:8px;height:10px"><div style="width:{{ pct }}%;height:10px;border-radius:8px;background:#16a34a"></div></div></div>{% endfor %}</div>
+  <div class="info"><h3>{{ tr("Severity distribution", language) }}</h3>
+    <p>🟢 {{ tr("Healthy", language) }}: <b>{{ stats.severity.none }}</b></p><p>🟠 {{ tr("Medium", language) }}: <b>{{ stats.severity.medium }}</b></p><p>🔴 {{ tr("High", language) }}: <b>{{ stats.severity.high }}</b></p></div>
+</div>
+<div class="grid">
+  <div class="info"><h3>{{ tr("Crop health trend", language) }}</h3>{% if stats.charts.health %}{{ stats.charts.health }}{% else %}<p class="small">{{ tr("Not enough data yet", language) }}</p>{% endif %}</div>
+  <div class="info"><h3>{{ tr("Confidence trend", language) }} (%)</h3>{% if stats.charts.confidence %}{{ stats.charts.confidence }}{% else %}<p class="small">{{ tr("Not enough data yet", language) }}</p>{% endif %}</div>
+</div>
+{% if stats.fields %}<h3>🌾 {{ tr("Field health", language) }}</h3><table class="table scroll"><tr><th>{{ tr("Field", language) }}</th><th>{{ tr("Crop", language) }}</th><th>{{ tr("Scans", language) }}</th><th>{{ tr("Health", language) }}</th></tr>
+{% for f in stats.fields %}<tr><td><a href="{{ url_for('field_detail', fid=f.id) }}">{{ f.name }}</a></td><td>{{ f.crop }}</td><td>{{ f.scans }}</td><td>{% if f.latest is not none %}{{ f.latest }}/100{% else %}{{ tr("Not enough data yet", language) }}{% endif %}</td></tr>{% endfor %}</table>{% endif %}
+<p><a class="btn" href="{{ url_for('scan_history') }}">📷 {{ tr("Scan History", language) }}</a></p>
+{% else %}<p>{{ tr("Not enough data yet", language) }}</p>{% endif %}
+</section><section class="card"><h2>{{texts.history}}</h2>{% if scans %}<table class="table scroll"><tr><th>{{ texts.date }}</th><th>{{texts.plant}}</th><th>{{texts.disease}}</th><th>{{texts.confidence}}</th><th>{{texts.status}}</th></tr>{% for s in scans %}<tr><td>{{s.created_at}}</td><td>{{s.plant}}</td><td>{{s.disease}}</td><td>{{"%.2f"|format(s.confidence or 0)}}%</td><td>{{s.status}}</td></tr>{% endfor %}</table>{% else %}<p>{{texts.no_history}}</p>{% endif %}</section>
+{% endblock %}

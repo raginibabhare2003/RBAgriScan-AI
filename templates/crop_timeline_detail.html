@@ -1,0 +1,42 @@
+<!-- FILE PURPOSE: CROP TIMELINE DETAIL. Hinglish: ek crop ki growth stages, reminders aur stage history. -->
+{% extends "base.html" %}
+{% block title %}{{ lg.nickname }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="hero"><h1>🌱 {{ lg.nickname }}</h1><p>{{ tr(crop_display_name(lg.crop_key), language) }} • Planted {{ lg.planted_on }}{% if lg.city %} • {{ lg.city }}{% endif %} • Status: <b>{{ lg.status }}</b></p></section>
+
+{% if reminders %}
+<section class="card" style="border-left:6px solid #f59e0b">
+<h2>⏰ {{ texts.reminders_due }}</h2>
+{% for r in reminders %}
+<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #eef2ef">
+<span>{{ r.kind.replace('_',' ')|title }} — due {{ r.due_date }}{% if r.due_date < today %} <b style="color:#dc2626">{{ tr("(overdue)", language) }}</b>{% endif %}</span>
+<form method="POST" action="{{ url_for('reminder_done', rid=r.id) }}"><button class="btn" style="padding:7px 12px">✓ {{ texts.done }}</button></form>
+</div>
+{% endfor %}
+</section>
+{% endif %}
+
+<section class="card">
+<h2>📅 {{ texts.growth_timeline }}</h2>
+<div class="grid">
+{% for s in plan %}
+<div class="info" style="{% if s.order == lg.current_stage_order %}border:2px solid #16a34a{% endif %}">
+<h3>{{ '✅' if s.order < lg.current_stage_order else ('🟢' if s.order == lg.current_stage_order else '⚪') }} {{ s.order }}. {{ tr(s.stage, language) }}</h3>
+<p class="small">{{ s.start }} → {{ s.end }} ({{ s.days }} days)</p>
+</div>
+{% endfor %}
+</div>
+{% if lg.status == 'active' %}
+<form method="POST" action="{{ url_for('crop_advance', log_id=lg.id) }}" style="margin-top:16px">
+<input name="note" placeholder="{{ texts.optional_note }}">
+<button class="btn full" type="submit" style="margin-top:8px">{% if next_stage %}➡️ {{ texts.advance_to }} {{ tr(next_stage.stage, language) }}{% else %}🎉 {{ texts.mark_harvested }}{% endif %}</button>
+</form>
+{% endif %}
+</section>
+
+<section class="card">
+<h2>🗒️ {{ texts.stage_history }}</h2>
+{% for e in events %}<div style="padding:8px 0;border-top:1px solid #eef2ef"><b>{{ tr(e.stage_name, language) }}</b> — {{ e.logged_at }}{% if e.note %}<br><span class="small">{{ e.note }}</span>{% endif %}</div>{% endfor %}
+</section>
+<a class="back" href="{{ url_for('crop_list') }}">← {{ texts.all_crops }}</a>
+{% endblock %}

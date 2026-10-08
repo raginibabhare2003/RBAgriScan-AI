@@ -1,0 +1,16 @@
+<!-- FILE PURPOSE: CONTACT PAGE. Hinglish: farmer contact message submit karta hai. -->
+{% extends "base.html" %}
+{% block meta_description %}{{ tr("Contact the RBAgriScan team for help or feedback.", language) }}{% endblock %}
+{% block title %}{{ texts.contact_title }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="card" style="border-left:6px solid #16a34a"><h2>🌱 {{ texts.project_contact }}</h2><div class="grid"><div class="info"><h3>📞 {{ texts.mobile }}</h3><p><a href="tel:9309005650">9309005650</a></p></div><div class="info"><h3>{{ tr("✉️ Email", language) }}</h3><p><a href="mailto:raginibabhare55@gmail.com">{{ tr("raginibabhare55@gmail.com", language) }}</a></p></div></div></section>
+<section class="card"><span class="section-label">{{ texts.get_in_touch }}</span><h1>📞 {{ texts.contact_title }}</h1><p>{{ texts.contact_text }}</p></section>
+<section class="card form">
+<form method="POST">
+<label>{{ texts.name }}</label><input name="name" value="{{ user or '' }}" required>
+<label>{{ texts.email }}</label><input type="email" name="email" placeholder="{{ tr('you@example.com', language) }}">
+<label>{{ texts.message }}</label><textarea name="message" required></textarea>
+<button class="btn full">📤 {{ texts.send_message }}</button>
+</form>
+</section>
+{% endblock %}

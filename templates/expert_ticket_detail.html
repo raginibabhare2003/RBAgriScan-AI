@@ -1,0 +1,47 @@
+<!-- FILE PURPOSE: PLANT HOSPITAL TICKET DETAIL. Hinglish: selected ticket ka conversation/status. -->
+{% extends "base.html" %}
+{% block title %}{{ texts.ticket }} #{{ ticket.id }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="hero"><h1>🩺 Ticket #{{ ticket.id }}</h1><p>{{ ticket.model_prediction or 'Unclassified' }} • {{ ticket.city or 'No location given' }} • <span class="pill">{{ ticket.status.replace('_',' ') }}</span></p></section>
+
+<section class="card">
+{% if ticket.image %}<img class="preview" src="{{ url_for('media', name=ticket.image) }}" alt="{{ tr('Ticket photo', language) }}">{% endif %}
+<h2>👩‍🌾 {{ ticket.user_name }} {{ texts.says }}:</h2>
+<p>{{ ticket.notes }}</p>
+{% if ticket.confidence %}<p class="small">AI confidence at time of scan: {{ "%.1f"|format(ticket.confidence) }}%</p>{% endif %}
+{% if is_expert %}
+{% if ticket.status != 'resolved' %}
+<form method="POST" style="display:block;margin:10px 0">
+<input type="hidden" name="action" value="resolve">
+<label>{{ texts.resolution }}</label>
+<textarea name="resolution" placeholder="{{ texts.resolution_placeholder }}" rows="3"></textarea>
+<button class="btn red" type="submit">✓ {{ texts.mark_resolved }}</button>
+</form>
+{% else %}
+<div class="info" style="margin:12px 0">
+<strong>✓ {{ texts.resolution }}</strong>
+{% if ticket.resolution %}<p>{{ ticket.resolution }}</p>{% else %}<p class="small">{{ texts.no_messages }}</p>{% endif %}
+{% if ticket.resolved_at %}<p class="small">{{ texts.resolved_on }}: {{ ticket.resolved_at }}</p>{% endif %}
+</div>
+<form method="POST" style="display:inline">
+<input type="hidden" name="action" value="reopen">
+<button class="btn alt" type="submit">↻ {{ texts.reopen }}</button>
+</form>
+{% endif %}
+{% if not ticket.assigned_expert_id and ticket.status != 'resolved' %}
+<form method="POST" style="display:inline"><input type="hidden" name="action" value="claim"><button class="btn" type="submit">🙋 {{ texts.claim }}</button></form>
+{% endif %}
+{% endif %}
+</section>
+
+<section class="card">
+<h2>💬 {{ texts.conversation }}</h2>
+<div style="max-height:320px;overflow:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px">
+{% for m in messages %}<div style="margin:8px 0"><b>{{ m.sender_name }}{% if m.is_admin %} 🛠️{% endif %}:</b> {{ m.message }}<br><span class="small">{{ m.created_at }}</span></div>{% endfor %}
+{% if not messages %}<p class="small">{{ texts.no_messages }}</p>{% endif %}
+</div>
+<form method="POST"><input type="hidden" name="action" value="message"><input name="message" placeholder="{{ texts.write_reply }}" required><button class="btn full" type="submit" style="margin-top:8px">{{ texts.send }}</button></form>
+<p class="small" style="margin-top:8px">{{ tr("This thread refreshes on send. A production build would use WebSockets for live updates - see", language) }} <code>{{ tr("docs/plant-hospital-expert-marketplace.md", language) }}</code>.</p>
+</section>
+<a class="back" href="{{ url_for('ticket_list') }}">← {{ texts.back }}</a>
+{% endblock %}

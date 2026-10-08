@@ -1,0 +1,24 @@
+<!-- FILE PURPOSE: SUPPORTED PLANTS. Hinglish: app/model me available plant classes ki list. -->
+{% extends "base.html" %}
+{% block meta_description %}{{ tr("See which plants and diseases RBAgriScan can analyse.", language) }}{% endblock %}
+{% block title %}Plants We Detect • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="hero">
+<h1>🌾 {{ texts.plants_title }}</h1>
+<p>{{ texts.plants_description }}</p>
+<div class="count">{{ crop_map|length }} crops • {{ total_labels }} detection classes</div>
+</section>
+<section class="grid">
+{% set icons={'Apple':'🍎','Corn (Maize)':'🌽','Grape':'🍇','Peach':'🍑','Pepper, bell':'🫑','Potato':'🥔','Strawberry':'🍓','Tomato':'🍅'} %}
+{% for crop,diseases in crop_map.items() %}
+<article class="card">
+<div class="crop"><div class="icon">{{ icons.get(crop,'🌱') }}</div><h2>{{ tr(crop, language) }}</h2></div>
+<div class="note">{{ diseases|length }} {{ texts.supported_class }}{{ '' if diseases|length == 1 else 'es' }}</div>
+{% for disease in diseases %}
+<div class="disease"><span class="dot">✓</span><span>{{ tr(disease, language) }}</span></div>
+{% endfor %}
+</article>
+{% endfor %}
+</section>
+<a class="back" href="{{ url_for('home') }}">← {{ texts.back }} {{ texts.nav_detection }}</a>
+{% endblock %}

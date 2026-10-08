@@ -1,0 +1,79 @@
+<!-- FILE PURPOSE: IoT DASHBOARD. Hinglish: sensor device register, device readings charts aur threshold alerts yahan dikhte hain. -->
+{% extends "base.html" %}
+{% block title %}IoT Sensors • {{ texts.brand }}{% endblock %}
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+{% endblock %}
+{% block content %}
+<section class="hero"><h1>📡 {{ texts.iot_title }}</h1><p>{{ texts.iot_text }}</p></section>
+
+<section class="card">
+<h2>➕ {{ texts.register_device }}</h2>
+<form method="POST" action="{{ url_for('iot_device_new') }}">
+<label>{{ texts.device_name }}</label><input name="name" placeholder="{{ texts.device_placeholder }}" required>
+{% if crops %}<label>{{ texts.link_crop }}</label><select name="crop_log_id" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px"><option value="">— {{ texts.none }} —</option>{% for c in crops %}<option value="{{c.id}}">{{c.nickname}}</option>{% endfor %}</select>{% endif %}
+{% if fields %}<label>{{ tr("Field", language) }}</label><select name="field_id" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px"><option value="">— {{ tr("No field", language) }} —</option>{% for f in fields %}<option value="{{f.id}}">{{f.name}} ({{f.crop}})</option>{% endfor %}</select>{% endif %}
+<button class="btn full" type="submit" style="margin-top:12px">{{ texts.create_device }}</button>
+</form>
+<p class="small" style="margin-top:10px">{{ tr("You'll get a one-time", language) }} <b>{{ tr("device key", language) }}</b> {{ tr("to paste into your sensor's config (ESP32/Wi-Fi bridge, Raspberry Pi, or a Bluetooth-to-Wi-Fi gateway). It POSTs JSON to", language) }} <code>{{ tr("/api/iot/ingest", language) }}</code>.</p>
+</section>
+
+<section class="card">
+<h2>📋 {{ texts.your_devices }}</h2>
+{% if devices %}
+{% for d in devices %}
+<div class="info" style="margin-bottom:14px">
+<h3>📟 {{ d.name }}</h3>
+<div class="grid">
+<canvas id="chart7-{{d.id}}" height="140"></canvas>
+<canvas id="chart30-{{d.id}}" height="140"></canvas>
+</div>
+<div id="alerts-{{d.id}}" class="small" style="margin-top:8px"></div>
+</div>
+{% endfor %}
+<script>
+async function loadDevice(id){
+  try{
+    const r7 = await fetch('/api/iot/readings/'+id+'?range=7d'); const d7 = await r7.json();
+    const r30 = await fetch('/api/iot/readings/'+id+'?range=30d'); const d30 = await r30.json();
+    const ra = await fetch('/api/iot/alerts/'+id); const da = await ra.json();
+    function draw(canvasId, rows, label){
+      const labels = rows.map(x=>x.recorded_at);
+      new Chart(document.getElementById(canvasId), {
+        type:'line',
+        data:{labels:labels, datasets:[
+          {label:window.APP_TEXTS.soil_moisture, data:rows.map(x=>x.soil_moisture), borderColor:'#0891b2', tension:.3},
+          {label:window.APP_TEXTS.temp, data:rows.map(x=>x.temperature), borderColor:'#dc2626', tension:.3},
+          {label:window.APP_TEXTS.humidity_chart, data:rows.map(x=>x.humidity), borderColor:'#16a34a', tension:.3}
+        ]},
+        options:{responsive:true,plugins:{title:{display:true,text:label}},scales:{x:{ticks:{maxTicksLimit:6}}}}
+      });
+    }
+    if (d7.ok) draw('chart7-'+id, d7.readings, texts.seven_day);
+    if (d30.ok) draw('chart30-'+id, d30.readings, texts.thirty_day);
+    if (da.ok && da.alerts.length){
+      document.getElementById('alerts-'+id).innerHTML = '⚠️ ' + da.alerts.slice(0,3).map(a=>escapeHtml(a.message)).join(' · ');
+    }
+  }catch(e){ console.error(e); }
+}
+document.addEventListener('DOMContentLoaded', ()=>{ {% for d in devices %}loadDevice({{d.id}});{% endfor %} });
+</script>
+{% else %}
+<p class="small">{{ texts.no_devices }}</p>
+{% endif %}
+</section>
+
+<section class="card">
+<h2>🔌 {{ texts.ingesting }}</h2>
+<p class="small">{{ tr("POST JSON to", language) }} <code>{{ tr("/api/iot/ingest", language) }}</code> {{ tr("with your device key and any of these fields:", language) }}</p>
+<pre style="background:#0f3d24;color:#dcfce7;padding:14px;border-radius:10px;overflow:auto;font-size:12px">{
+  "device_key": "&lt;your device key&gt;",
+  "soil_moisture": 34.2,
+  "temperature": 27.1,
+  "humidity": 55,
+  "light_lux": 12000,
+  "n_ppm": 40, "p_ppm": 18, "k_ppm": 32
+}</pre>
+<p class="small">{{ texts.alert_threshold }}</p>
+</section>
+{% endblock %}

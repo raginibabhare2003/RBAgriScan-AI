@@ -1,0 +1,7 @@
+<!-- FILE PURPOSE: ABOUT PAGE. Hinglish: project, AI screening, languages, PWA and limitations ka explanation. -->
+{% extends "base.html" %}
+{% block meta_description %}{{ tr("Learn how RBAgriScan helps farmers identify plants and screen crop diseases with AI.", language) }}{% endblock %}
+{% block title %}{{ texts.about }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="card"><h1>🌱 {{texts.about_title}}</h1><p>{{ texts.about_text }}</p><div class="grid"><div class="info"><h3>🧠 {{ texts.ai_label }}</h3><p>{{ texts.about_ai }}</p></div><div class="info"><h3>📷 {{ texts.access_label }}</h3><p>{{ texts.about_access }}</p></div><div class="info"><h3>🌦️ {{ texts.environment_label }}</h3><p>{{ texts.about_environment }}</p></div><div class="info"><h3>🌐 {{ texts.language }}</h3><p>{{ texts.about_languages }}</p></div><div class="info"><h3>📱 {{ texts.install_offline }}</h3><p>{{ texts.about_pwa }}</p></div></div><p class="small">{{texts.safe_note}}</p></section>
+{% endblock %}

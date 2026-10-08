@@ -1,0 +1,28 @@
+<!-- FILE PURPOSE: Notification preferences (per user). -->
+{% extends "base.html" %}
+{% block title %}{{ tr("Notification settings", language) }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<style>.pref{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}.pref input[type=checkbox]{width:22px;height:22px;margin-top:2px;flex:none}</style>
+<section class="hero"><h1>⚙️ {{ tr("Notification settings", language) }}</h1><p>{{ tr("Choose which alerts you want to receive.", language) }}</p></section>
+<section class="card">
+<form method="POST" action="{{ url_for('notification_settings') }}">
+  <label class="pref"><input type="checkbox" name="scan_reminders" {{ 'checked' if prefs.scan_reminders }}><span><b>📷 {{ tr("Scan reminders", language) }}</b><br><span class="small">{{ tr("Remind me when a field or my plants have not been scanned for a while.", language) }}</span></span></label>
+  <div class="pref"><span style="width:22px;flex:none"></span><span><label for="reminder_days"><b>{{ tr("Remind me after", language) }}</b></label>
+    <select id="reminder_days" name="reminder_days" style="padding:10px;border-radius:10px;border:1px solid #cbd5e1">{% for d in day_choices %}<option value="{{ d }}" {{ 'selected' if prefs.reminder_days==d }}>{{ d }} {{ tr("days", language) }}</option>{% endfor %}</select></span></div>
+  <label class="pref"><input type="checkbox" name="soil_moisture" {{ 'checked' if prefs.soil_moisture }}><span><b>💧 {{ tr("Low soil moisture", language) }}</b><br><span class="small">{{ tr("When a connected sensor reports dry soil.", language) }}</span></span></label>
+  <label class="pref"><input type="checkbox" name="expert_reply" {{ 'checked' if prefs.expert_reply }}><span><b>👨‍🌾 {{ tr("Expert responses", language) }}</b><br><span class="small">{{ tr("When an expert replies to or resolves your Plant Hospital ticket.", language) }}</span></span></label>
+  <label class="pref"><input type="checkbox" name="health_change" {{ 'checked' if prefs.health_change }}><span><b>📈 {{ tr("Crop health changes", language) }}</b><br><span class="small">{{ tr("When the health score of a plant changes a lot between scans.", language) }}</span></span></label>
+  <label class="pref"><input type="checkbox" name="disease_risk" {{ 'checked' if prefs.disease_risk }}><span><b>🌦️ {{ tr("Estimated disease risk", language) }}</b><br><span class="small">{{ tr("Advisory based on weather. Needs your approximate location below.", language) }}</span></span></label>
+  <label class="pref"><input type="checkbox" name="weather_advisory" {{ 'checked' if prefs.weather_advisory }}><span><b>🌧️ {{ tr("Weather advisories", language) }}</b><br><span class="small">{{ tr("Heat, frost, heavy rain, strong wind and dry-spell warnings.", language) }}</span></span></label>
+  <button class="btn" type="submit">{{ tr("Save", language) }}</button>
+  <a class="btn alt" href="{{ url_for('notifications_page') }}">← {{ tr("Notifications", language) }}</a>
+</form>
+<h3 style="margin-top:18px">📍 {{ tr("Location for weather alerts", language) }}</h3>
+<p class="small">{{ tr("Optional. Only an approximate position (about 11 km) is saved, and only after you allow it. You can remove it at any time.", language) }}</p>
+{% if has_location %}<p>✅ {{ tr("Approximate location saved.", language) }}</p>
+<form method="POST" action="{{ url_for('notification_location_delete') }}"><button class="btn alt" type="submit">🗑️ {{ tr("Remove saved location", language) }}</button></form>
+{% else %}<form id="locForm" method="POST" action="{{ url_for('notification_location_save') }}"><input type="hidden" name="lat"><input type="hidden" name="lon">
+<button class="btn" type="button" id="locBtn">📍 {{ tr("Use my location", language) }}</button> <span class="small" id="locMsg"></span></form>
+<script>(function(){var b=document.getElementById("locBtn"),f=document.getElementById("locForm"),m=document.getElementById("locMsg");if(!b)return;b.addEventListener("click",function(){if(!navigator.geolocation){m.textContent={{ tr("Geolocation is not supported.", language)|tojson }};return;}navigator.geolocation.getCurrentPosition(function(p){f.lat.value=p.coords.latitude;f.lon.value=p.coords.longitude;f.submit();},function(){m.textContent={{ tr("Location permission was not granted.", language)|tojson }};});});})();</script>{% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,70 @@
+<!-- FILE PURPOSE: One field: crop info, scans, disease history, health timeline, sensors, PDF. Loaded WHERE id AND user_id match the session. -->
+{% extends "base.html" %}
+{% block title %}{{ f.name }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<style>
+.scan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.scan-card{display:block;color:inherit;text-decoration:none;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#fff}
+.scan-card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#ecfdf5}.scan-card .meta{padding:8px 10px;font-size:13px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.fgrid label{display:block;font-weight:700;font-size:14px;margin-bottom:4px}
+.fgrid input{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px;box-sizing:border-box}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+</style>
+<section class="hero"><h1>🌾 {{ f.name }}</h1><p>🌱 {{ f.crop }}{% if f.farm_name %} • 🏡 {{ f.farm_name }}{% endif %}{% if f.area_acres is not none %} • {{ "%g"|format(f.area_acres) }} {{ tr("acres", language) }}{% endif %}</p></section>
+
+<div class="grid">
+  <div class="stat"><b>{{ scan_total }}</b><br>{{ tr("Scans", language) }}</div>
+  <div class="stat"><b>{{ latest if latest is not none else "—" }}</b><br>{{ tr("Latest health score", language) }}</div>
+  <div class="stat"><b>{{ avg if avg is not none else "—" }}</b><br>{{ tr("Average health score", language) }}</div>
+</div>
+<p><a class="btn" href="{{ url_for('field_report_pdf', fid=f.id) }}">📄 {{ tr("Download PDF report", language) }}</a>
+   <a class="btn alt" href="{{ url_for('home') }}">🔍 {{ tr("Scan a plant", language) }}</a>
+   <a class="btn alt" href="{{ url_for('field_imagery', fid=f.id) }}">🛰️ {{ tr("Satellite / drone", language) }}</a>
+   <a class="btn alt" href="{{ url_for('home') }}#weather-section">🌦️ {{ tr("Check weather", language) }}</a></p>
+{% if f.notes %}<section class="card"><p>{{ f.notes }}</p></section>{% endif %}
+
+<section class="card"><h2>📈 {{ tr("Crop health timeline", language) }}</h2>
+{% if charts.health or charts.confidence or charts.severity %}
+<div class="grid">
+  {% if charts.health %}<div class="info"><h3>{{ tr("Crop Health Score", language) }}</h3>{{ charts.health }}</div>{% endif %}
+  {% if charts.severity %}<div class="info"><h3>{{ tr("Disease severity (0 healthy, 1 medium, 2 high)", language) }}</h3>{{ charts.severity }}</div>{% endif %}
+  {% if charts.confidence %}<div class="info"><h3>{{ tr("Confidence trend", language) }} (%)</h3>{{ charts.confidence }}</div>{% endif %}
+</div>
+{% else %}<p>{{ tr("Not enough data yet", language) }}</p>{% endif %}</section>
+
+<section class="card"><h2>🦠 {{ tr("Disease history", language) }}</h2>
+{% if diseases %}<table class="table scroll"><tr><th>{{ texts.disease }}</th><th>{{ tr("Scans", language) }}</th></tr>{% for name, n in diseases %}<tr><td>{{ name }}</td><td>{{ n }}</td></tr>{% endfor %}</table>
+{% else %}<p>{{ tr("Not enough data yet", language) }}</p>{% endif %}</section>
+
+<section class="card"><h2>📷 {{ tr("Recent scans", language) }}</h2>
+{% if scans %}<div class="scan-grid">{% for s in scans %}
+  <a class="scan-card" href="{{ url_for('scan_detail', sid=s.id) }}"><img src="{{ url_for('media', name=s.image) }}" alt="{{ s.plant }}" loading="lazy">
+  <div class="meta"><b>{{ s.plant }}</b><br>{{ pretty(s.disease) }}<br>{% if s.health_score is not none %}{{ tr("Health", language) }}: {{ s.health_score }}/100{% else %}<span class="small">{{ tr("Not enough data yet", language) }}</span>{% endif %}<br><span class="small">{{ fmt(s.created_at) }}</span></div></a>
+{% endfor %}</div>
+{% else %}<p>{{ tr("No scans in this field yet. Choose this field when you scan a plant, or add an existing scan from its details page.", language) }}</p>{% endif %}</section>
+
+<section class="card"><h2>📡 {{ tr("Sensors", language) }}</h2>
+{% if sensors %}{% for d in sensors %}
+  <p><span class="dot" style="background:{{ '#16a34a' if d.live else '#9ca3af' }}"></span><b>{{ d.name }}</b> —
+  {% if d.reading %}{{ tr("Last reading", language) }}: {{ d.reading.recorded_at.strftime('%Y-%m-%d %H:%M') }} ({{ tr("connected", language) if d.live else tr("not connected", language) }})<br>
+    <span class="small">{{ tr("Soil moisture", language) }} {{ d.reading.soil_moisture if d.reading.soil_moisture is not none else '—' }} • {{ tr("Temperature", language) }} {{ d.reading.temperature if d.reading.temperature is not none else '—' }} • {{ tr("Humidity", language) }} {{ d.reading.humidity if d.reading.humidity is not none else '—' }}</span>
+  {% else %}{{ tr("No live sensor data available", language) }}{% endif %}</p>
+{% endfor %}{% else %}<p>{{ tr("No live sensor data available", language) }}. <a href="{{ url_for('iot_dashboard') }}">{{ tr("Register a sensor", language) }}</a></p>{% endif %}</section>
+
+<section class="card"><h2>⚙️ {{ tr("Edit field", language) }}</h2>
+<form method="POST" action="{{ url_for('field_edit', fid=f.id) }}">
+  <div class="fgrid">
+    <div><label>{{ tr("Farm name", language) }}</label><input name="farm_name" maxlength="120" value="{{ f.farm_name }}"></div>
+    <div><label>{{ tr("Field name", language) }} *</label><input name="name" maxlength="120" required value="{{ f.name }}"></div>
+    <div><label>{{ tr("Crop", language) }} *</label><input name="crop" maxlength="120" required value="{{ f.crop }}"></div>
+    <div><label>{{ tr("Area (acres)", language) }}</label><input name="area_acres" inputmode="decimal" value="{{ '%g'|format(f.area_acres) if f.area_acres is not none else '' }}"></div>
+  </div>
+  <div style="margin-top:10px"><label style="font-weight:700;font-size:14px">{{ tr("Notes", language) }}</label><input name="notes" maxlength="500" value="{{ f.notes or '' }}" style="width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px;box-sizing:border-box"></div>
+  <button class="btn" type="submit" style="margin-top:12px">{{ tr("Save", language) }}</button>
+</form>
+<form method="POST" action="{{ url_for('field_delete', fid=f.id) }}" onsubmit="return confirm({{ tr('Delete this field? Its scans stay in your history.', language)|tojson }})" style="margin-top:12px">
+  <button class="btn alt" type="submit">🗑️ {{ tr("Delete field", language) }}</button>
+</form></section>
+<p><a class="btn alt" href="{{ url_for('fields_list') }}">← {{ tr("My Fields", language) }}</a></p>
+{% endblock %}

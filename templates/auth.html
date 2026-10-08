@@ -1,0 +1,6 @@
+<!-- FILE PURPOSE: Login / Register page. Hinglish: farmer account create/login UI; form backend app.py ke auth routes ko submit hota hai. -->
+{% extends "base.html" %}
+{% block title %}{{ texts.login_title if mode=='login' else texts.register_title }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="card form"><h1>{{ texts.login_title if mode=='login' else texts.register_title }}</h1><form method="POST"><input type="hidden" name="next" value="{{ next }}">{% if mode=='register' %}<label>{{ texts.name }}</label><input name="name" required>{% endif %}<label>{{ texts.email }}</label><input type="email" name="email" required autocomplete="email"><label>{{ texts.password }}</label><input type="password" name="password" minlength="6" required autocomplete="{{ 'new-password' if mode=='register' else 'current-password' }}"><button class="btn full">{{ texts.login if mode=='login' else texts.register }}</button></form><p>{% if mode=='login' %}<a href="{{url_for('register',next=next)}}">{{texts.new_user}}</a><br><a href="{{url_for('forgot_password')}}">{{texts.forgot_password}}</a>{% else %}<a href="{{url_for('login',next=next)}}">{{texts.existing_user}}</a>{% endif %}</p></section>
+{% endblock %}

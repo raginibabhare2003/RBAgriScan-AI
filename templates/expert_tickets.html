@@ -1,0 +1,196 @@
+<!-- FILE PURPOSE: PLANT HOSPITAL. Hinglish: farmer ke expert help tickets list. -->
+{% extends "base.html" %}
+
+{% block title %}Plant Hospital • {{ texts.brand }}{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <h1>🩺 {{ texts.hospital }}</h1>
+    <p>
+        {% if is_expert %}
+            {{ texts.hospital_expert }}
+        {% else %}
+            {{ texts.hospital_farmer }}
+        {% endif %}
+    </p>
+</section>
+
+
+{% if not is_expert %}
+
+<section class="card">
+
+    <h2>➕ {{ texts.open_ticket }}</h2>
+
+    <form method="POST" id="ticketForm">
+
+        {% if recent_scans %}
+        <label>{{ texts.attach_scan }}</label>
+
+        <select
+            name="__scan"
+            onchange="
+                var o=this.options[this.selectedIndex];
+                document.getElementsByName('scan_id')[0].value=o.value;
+                document.getElementsByName('model_prediction')[0].value=o.dataset.d || '';
+                document.getElementsByName('confidence')[0].value=o.dataset.c || '';
+                document.getElementsByName('image')[0].value=o.dataset.img || '';
+            "
+            style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px"
+        >
+
+            <option value="">{{ tr("— none —", language) }}</option>
+
+            {% for s in recent_scans %}
+            <option
+                value="{{ s.id }}"
+                data-d="{{ s.disease }}"
+                data-c="{{ s.confidence }}"
+                data-img="{{ s.image }}"
+            >
+                {{ s.plant }} — {{ s.disease }}
+                ({{ "%.0f"|format(s.confidence or 0) }}%)
+            </option>
+            {% endfor %}
+
+        </select>
+        {% endif %}
+
+
+        <!-- Hidden scan information -->
+        <input type="hidden" name="scan_id">
+        <input type="hidden" name="model_prediction">
+        <input type="hidden" name="confidence">
+        <input type="hidden" name="image">
+
+
+        <!-- City -->
+        <label>{{ texts.city_region }}</label>
+
+        <input
+            type="text"
+            name="city"
+            placeholder="{{ tr('e.g. Aurangabad, Maharashtra', language) }}"
+        >
+
+
+        <!-- Problem description -->
+        <label>{{ texts.describe }}</label>
+
+        <textarea
+            name="notes"
+            placeholder="{{ tr('What did the AI say, and what are you still unsure about?', language) }}"
+            required
+        ></textarea>
+
+
+        <!-- Submit ticket -->
+        <button class="btn full" type="submit">
+            📨 {{ texts.submit_expert }}
+        </button>
+
+    </form>
+
+
+    <div
+        id="ticketOfflineNotice"
+        class="flash"
+        style="display:none;margin-top:12px"
+    ></div>
+
+    <div
+        id="pendingTickets"
+        class="small"
+        style="display:none;margin-top:8px"
+    ></div>
+
+</section>
+
+{% endif %}
+
+
+<!-- TICKET QUEUE / FARMER TICKETS -->
+
+<section class="card">
+
+    <h2>
+        {% if is_expert %}
+            📥 {{ texts.queue }}
+        {% else %}
+            📋 {{ texts.your_tickets }}
+        {% endif %}
+    </h2>
+
+
+    {% if tickets %}
+
+    <table class="table scroll">
+
+        <tr>
+            <th>{{ tr("ID", language) }}</th>
+
+            {% if is_expert %}
+            <th>{{ texts.farmer }}</th>
+            {% endif %}
+
+            <th>{{ texts.prediction }}</th>
+            <th>{{ texts.city }}</th>
+            <th>{{ texts.status }}</th>
+            <th>{{ texts.resolution }}</th>
+            <th>{{ texts.opened }}</th>
+            <th></th>
+        </tr>
+
+
+        {% for t in tickets %}
+
+        <tr>
+
+            <td>#{{ t.id }}</td>
+
+            {% if is_expert %}
+            <td>{{ t.user_name }}</td>
+            {% endif %}
+
+            <td>{{ t.model_prediction or '—' }}</td>
+
+            <td>{{ t.city or '—' }}</td>
+
+            <td>
+                <span class="pill">
+                    {{ t.status.replace('_',' ') }}
+                </span>
+            </td>
+
+            <td>{{ t.resolution or '—' }}</td>
+
+            <td>{{ t.created_at }}</td>
+
+            <td>
+                <a
+                    class="btn"
+                    style="padding:7px 12px"
+                    href="{{ url_for('ticket_detail', tid=t.id) }}"
+                >
+                    {{ texts.open }}
+                </a>
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    {% else %}
+
+    <p class="small">
+        {{ texts.nothing_here }}
+    </p>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

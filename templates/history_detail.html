@@ -1,0 +1,64 @@
+<!-- FILE PURPOSE: One saved scan (complete result). The route loads it WHERE id AND user_id match the session. -->
+{% extends "base.html" %}
+{% block title %}{{ s.plant }} • {{ tr("Scan result", language) }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<style>
+.detail{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:20px}
+.detail img{width:100%;border-radius:16px;display:block}
+@media(max-width:700px){.detail{grid-template-columns:1fr}}
+.score{font-size:42px;font-weight:900;color:#14532d;line-height:1}
+</style>
+<section class="hero"><h1>🌱 {{ s.plant }}</h1><p>{{ fmt(s.created_at, "%d %b %Y, %H:%M") }}</p></section>
+<section class="card">
+  <div class="detail">
+    <div><img src="{{ url_for('media', name=s.image) }}" alt="{{ s.plant }}"></div>
+    <div>
+      <p><b>{{ texts.disease }}:</b> {% if vm.low %}{{ tr("Disease could not be confidently identified.", language) }}{% else %}{{ pretty(s.disease) }}{% endif %}</p>
+      <p><b>{{ texts.confidence }}:</b> {{ "%.1f"|format(s.confidence or 0) }}%</p>
+      {% if vm.saved.scientific_name %}<p><b>{{ tr("Scientific name", language) }}:</b> <i>{{ vm.saved.scientific_name }}</i></p>{% endif %}
+      <p><b>{{ tr("Crop Health Score", language) }}</b></p>
+      {% if s.health_score is not none %}<div class="score">{{ s.health_score }}<span style="font-size:18px">/100</span></div>
+        <p class="small">{{ tr("Indicative score based on the diagnosed condition; not a laboratory measurement.", language) }}</p>
+      {% else %}<p>{{ tr("Not enough data yet", language) }}</p>{% endif %}
+      {% if vm.saved.explanation %}<p>{{ vm.saved.explanation }}</p>{% endif %}
+      <p><a class="btn" href="{{ url_for('scan_report_pdf', sid=s.id) }}">📄 {{ tr("Download PDF report", language) }}</a>
+         <a class="btn alt" href="{{ url_for('scan_history', plant=s.plant) }}">📈 {{ tr("Crop health timeline", language) }}</a></p>
+    </div>
+  </div>
+</section>
+{% if vm.info %}
+<section class="card"><h2>{{ tr("Advisory", language) }}</h2>
+  {% for key, title in (("home","Basic care / home remedies"),("natural","Natural treatment advisory"),("field","Field treatment advisory"),("chemical","Chemical advisory"),("prevention","Prevention")) %}
+    {% if vm.info.get(key) %}<h3>{{ tr(title, language) }}</h3><ul>{% for x in vm.info.get(key) %}<li>{{ x }}</li>{% endfor %}</ul>{% endif %}
+  {% endfor %}
+  <p class="small">{{ tr("This is AI-generated guidance, not a definitive diagnosis. Confirm serious problems with a local agriculture expert.", language) }}</p>
+</section>
+{% endif %}
+<section class="card"><h2>🌦️ {{ tr("Weather at scan time", language) }}</h2>
+{% if wx %}<p>{{ wx.temp }} °C • {{ wx.humidity }}% • {{ tr("Rain", language) }} {{ wx.rain }} mm • {{ tr("Wind", language) }} {{ wx.wind }} km/h</p>
+{% else %}<p>{{ tr("Not recorded for this scan", language) }}</p>{% endif %}</section>
+{% if can_explain %}
+<section class="card"><h2>🔥 {{ tr("Why this result?", language) }}</h2>
+{% if s.explain_image %}<img src="{{ url_for('media', name=s.explain_image) }}" alt="" style="width:100%;max-width:420px;border-radius:12px;display:block">
+<p>{{ tr("The highlighted area contributed strongly to this prediction.", language) }}</p>
+<p class="small">{{ tr("This is a model-attention map (occlusion sensitivity), not a definitive biological diagnosis.", language) }}</p>
+{% else %}<form method="POST" action="{{ url_for('scan_explain', sid=s.id) }}"><button class="btn" type="submit">🔍 {{ tr("Show explanation", language) }}</button></form>{% endif %}</section>
+{% endif %}
+{% if user_fields %}
+<section class="card"><h2>🌾 {{ tr("Field", language) }}</h2>
+<form method="POST" action="{{ url_for('scan_set_field', sid=s.id) }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+  <select name="field_id" style="padding:10px;border-radius:10px;border:1px solid #cbd5e1;max-width:100%">
+    <option value="">— {{ tr("No field", language) }} —</option>
+    {% for f in user_fields %}<option value="{{ f.id }}" {{ 'selected' if s.field_id==f.id else '' }}>{{ f.name }} ({{ f.crop }})</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">{{ tr("Save", language) }}</button>
+</form></section>
+{% endif %}
+<section class="card"><h2>{{ tr("Crop health history", language) }} — {{ s.plant }}</h2>
+{% if hist|length >= 2 %}
+<table class="table scroll"><tr><th>{{ tr("Date", language) }}</th><th>{{ texts.disease }}</th><th>{{ tr("Health score", language) }}</th></tr>
+{% for h in hist %}<tr><td>{{ fmt(h.created_at) }}</td><td>{{ pretty(h.disease) }}</td><td>{{ h.health_score }}</td></tr>{% endfor %}</table>
+{% else %}<p>{{ tr("Not enough data yet", language) }}</p>{% endif %}
+</section>
+<p><a class="btn alt" href="{{ url_for('scan_history') }}">← {{ tr("Scan History", language) }}</a></p>
+{% endblock %}

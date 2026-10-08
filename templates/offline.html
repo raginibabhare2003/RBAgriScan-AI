@@ -1,0 +1,26 @@
+<!-- FILE PURPOSE: OFFLINE PAGE. Hinglish: internet unavailable hone par cached/offline information. -->
+{% extends "base.html" %}
+{% block title %}You're offline • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="hero"><h1>📡 {{ texts.offline_title }}</h1><p>{{ texts.offline_text }}</p></section>
+<section class="card">
+<h2>{{ texts.offline_still }}</h2>
+<div class="grid">
+<div class="info"><h3>{{ tr("📖 Browse cached pages", language) }}</h3><p>{{ tr("Any page you've opened before on this device (like this one, or your dashboard) will keep working offline.", language) }}</p></div>
+<div class="info"><h3>{{ tr("📷 Line up your photo", language) }}</h3><p>{{ tr("Get a clear, well-lit photo of the leaf ready - reconnect and it'll detect in seconds. You can also prepare a Plant Hospital ticket; saved tickets sync automatically when you are back online.", language) }}</p></div>
+<div class="info"><h3>{{ tr("🩺 Plant Hospital", language) }}</h3><p>{{ tr("Hospital tickets can wait on the device during a network outage and sync automatically when the connection returns.", language) }}</p></div>
+<div class="info"><h3>{{ tr("🔄 Auto-retry", language) }}</h3><p>{{ tr("This page will reload automatically once your connection comes back.", language) }}</p></div>
+</div>
+<p class="small" style="margin-top:16px" id="offlineStatus">{{ texts.offline_wait }}</p>
+</section>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+function checkOnline(){
+  var s=document.getElementById('offlineStatus');
+  if(navigator.onLine){ s.textContent='Back online - reloading...'; setTimeout(function(){location.reload();},400); }
+}
+window.addEventListener('online', checkOnline);
+checkOnline();
+</script>
+{% endblock %}

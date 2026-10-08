@@ -1,0 +1,30 @@
+<!-- FILE PURPOSE: FARMER FEEDBACK. Hinglish: rating/message submit aur recent feedback display. -->
+{% extends "base.html" %}
+{% block title %}{{ texts.feedback_title }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="card form">
+<h1>⭐ {{texts.feedback_title}}</h1>
+<form method="POST">
+<label>{{texts.name}}</label><input name="name" value="{{user or ''}}" required>
+<label>{{ texts.your_rating }}</label>
+<div class="stars">
+{% for i in [5,4,3,2,1] %}<input type="radio" id="star{{i}}" name="rating" value="{{i}}" {{ 'checked' if i==5 else '' }}><label for="star{{i}}" title="{{i}}">★</label>{% endfor %}
+</div>
+<label>{{texts.message}}</label><textarea name="message" required></textarea>
+<button class="btn full">{{texts.send}}</button>
+</form>
+</section>
+<section class="card">
+<h2>💬 {{ texts.recent_feedback }}</h2>
+{% if avg_rating %}<p class="pill">⭐ {{ "%.1f"|format(avg_rating) }} {{ texts.avg_rating }} • {{ feedback_count }} {{ texts.feedback }}</p>{% endif %}
+{% if recent %}
+<div class="grid">
+{% for f in recent %}
+<div class="info"><h3>👩‍🌾 {{ f.name }} — {{ '★'*(f.rating or 5) }}{{ '☆'*(5-(f.rating or 5)) }}</h3><p>{{ f.message }}</p></div>
+{% endfor %}
+</div>
+{% else %}
+<p class="small">{{ texts.no_feedback }}</p>
+{% endif %}
+</section>
+{% endblock %}

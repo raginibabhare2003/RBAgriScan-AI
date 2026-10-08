@@ -1,0 +1,46 @@
+<!-- FILE PURPOSE: ADMIN PANEL. Hinglish: admin project activity, scans, feedback, contacts aur suggestions manage/review karta hai. -->
+{% extends "base.html" %}
+{% block title %}Admin • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="hero"><h1>🛠️ {{ texts.admin_title }}</h1><p>{{ texts.admin_text }}</p></section>
+<div class="grid">
+<div class="stat"><b>{{stats.users}}</b><br>{{ texts.users }}</div>
+<div class="stat"><b>{{stats.scans}}</b><br>{{ texts.scans }}</div>
+<div class="stat"><b>{{stats.feedback}}</b><br>{{ tr("Feedback", language) }}</div>
+<div class="stat"><b>{{stats.contacts}}</b><br>{{ texts.contacts }}</div>
+<div class="stat"><b>{{stats.suggestions}}</b><br>{{ texts.suggestions }}</div>
+<div class="stat"><b>{{stats.open_tickets}}</b><br>{{ texts.open_tickets }}</div>
+<div class="stat"><b>{{stats.tickets}}</b><br>{{ texts.tickets }}</div>
+</div>
+<section class="card" id="hospital">
+<h2>🩺 {{ texts.hospital }} / {{ texts.tickets }}</h2>
+<p class="small">{{ texts.hospital_expert }}</p>
+{% if tickets %}
+<table class="table scroll">
+<tr><th>{{ tr("ID", language) }}</th><th>{{ texts.farmer }}</th><th>{{ texts.prediction }}</th><th>{{ texts.status }}</th><th>{{ texts.opened }}</th><th>{{ texts.assigned_to }}</th><th>{{ tr("Action", language) }}</th></tr>
+{% for t in tickets %}
+<tr>
+<td>#{{t.id}}</td>
+<td>{{t.user_name or t.user_email or '—'}}</td>
+<td>{{t.model_prediction or '—'}}</td>
+<td><span class="pill">{{t.status.replace('_',' ')}}</span></td>
+<td>{{t.created_at}}</td>
+<td>{{t.expert_name or '—'}}</td>
+<td><a class="btn" style="padding:7px 12px" href="{{url_for('ticket_detail', tid=t.id)}}">{{ texts.open }}</a></td>
+</tr>
+{% endfor %}
+</table>
+{% else %}<p>{{ texts.no_tickets }}</p>{% endif %}
+</section>
+
+<section class="card" id="scans">
+<h2>📊 {{ texts.scan_data }}</h2>
+<form method="POST" action="{{url_for('admin_delete_scans')}}" onsubmit="return confirm('Delete ALL scan history and uploaded scan images? This cannot be undone.');"><button class="btn red">🗑️ {{ texts.delete_all_scans }}</button></form>
+<p class="small">{{ texts.admin_only }}</p>
+{% if scans %}<table class="table scroll"><tr><th>{{ tr("ID", language) }}</th><th>{{ tr("User", language) }}</th><th>{{ tr("Plant", language) }}</th><th>{{ tr("Disease", language) }}</th><th>{{ tr("Confidence", language) }}</th><th>{{ tr("Status", language) }}</th><th>{{ tr("Date", language) }}</th><th>{{ tr("Action", language) }}</th></tr>{% for s in scans %}<tr><td>{{s.id}}</td><td>{{s.user_name or s.user_email or '—'}}</td><td>{{s.plant}}</td><td>{{s.disease}}</td><td>{{'%.2f'|format(s.confidence or 0)}}%</td><td>{{s.status}}</td><td>{{s.created_at}}</td><td><form method="POST" action="{{url_for('admin_delete_scan',scan_id=s.id)}}" onsubmit="return confirm('Delete this scan?');"><button class="btn red">{{ tr("Delete", language) }}</button></form></td></tr>{% endfor %}</table>{% else %}<p>{{ tr("No scan data.", language) }}</p>{% endif %}
+</section>
+<section class="card"><h2>👥 {{ texts.users }}</h2><table class="table scroll"><tr><th>{{ tr("ID", language) }}</th><th>{{ tr("Name", language) }}</th><th>{{ tr("Email", language) }}</th><th>{{ tr("Admin", language) }}</th><th>{{ tr("Created", language) }}</th></tr>{% for u in users %}<tr><td>{{u.id}}</td><td>{{u.name}}</td><td>{{u.email}}</td><td>{{'Yes' if u.is_admin else 'No'}}</td><td>{{u.created_at}}</td></tr>{% endfor %}</table></section>
+<section class="card"><h2>{{ tr("📞 Contact Messages", language) }}</h2>{% if contacts %}<table class="table scroll"><tr><th>{{ tr("Date", language) }}</th><th>{{ tr("Name", language) }}</th><th>{{ tr("Email", language) }}</th><th>{{ tr("Message", language) }}</th></tr>{% for x in contacts %}<tr><td>{{x.created_at}}</td><td>{{x.name}}</td><td>{{x.email}}</td><td>{{x.message}}</td></tr>{% endfor %}</table>{% else %}<p>{{ tr("No contact messages.", language) }}</p>{% endif %}</section>
+<section class="card"><h2>{{ tr("⭐ Feedback", language) }}</h2>{% if feedback %}<table class="table scroll"><tr><th>{{ tr("Date", language) }}</th><th>{{ tr("Name", language) }}</th><th>{{ tr("Rating", language) }}</th><th>{{ tr("Message", language) }}</th></tr>{% for x in feedback %}<tr><td>{{x.created_at}}</td><td>{{x.name}}</td><td>{{x.rating}}</td><td>{{x.message}}</td></tr>{% endfor %}</table>{% else %}<p>{{ tr("No feedback.", language) }}</p>{% endif %}</section>
+<section class="card"><h2>💡 {{ texts.suggestions }}</h2>{% if suggestions %}<table class="table scroll"><tr><th>{{ tr("Date", language) }}</th><th>{{ tr("Name", language) }}</th><th>{{ tr("Message", language) }}</th></tr>{% for x in suggestions %}<tr><td>{{x.created_at}}</td><td>{{x.name}}</td><td>{{x.message}}</td></tr>{% endfor %}</table>{% else %}<p>{{ tr("No suggestions.", language) }}</p>{% endif %}</section>
+{% endblock %}

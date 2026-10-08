@@ -1,0 +1,9 @@
+<!-- FILE PURPOSE: ONE translated error page for 400/401/403/404/405/413/429/500. Never shows stack traces. -->
+{% extends "base.html" %}
+{% block title %}{{ code }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="hero"><h1>⚠️ {{ code }}</h1><p>{{ message }}</p></section>
+<section class="card" style="text-align:center">
+  <a class="btn" href="{{ url_for('home') }}">🏠 {{ texts.home }}</a>
+</section>
+{% endblock %}

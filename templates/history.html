@@ -1,0 +1,66 @@
+<!-- FILE PURPOSE: SCAN HISTORY + per-plant health timeline. Only the logged-in user's own scans (server-side filtered). -->
+{% extends "base.html" %}
+{% block title %}{{ tr("Scan History", language) }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<style>
+.scan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.scan-card{display:block;color:inherit;text-decoration:none;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:#fff}
+.scan-card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#ecfdf5}
+.scan-card .meta{padding:10px 12px;font-size:14px}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;background:#dcfce7;color:#14532d}
+.pill.medium{background:#fef3c7;color:#92400e}.pill.high{background:#fee2e2;color:#991b1b}.pill.na{background:#f3f4f6;color:#4b5563}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filters select{padding:10px;border-radius:10px;border:1px solid var(--border);max-width:100%}
+.pager{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+</style>
+<section class="hero"><h1>📷 {{ tr("Scan History", language) }}</h1><p>{{ tr("Your previous plant scans and crop health over time.", language) }}</p></section>
+
+<section class="card">
+  <form class="filters" method="get" action="{{ url_for('scan_history') }}">
+    <label for="plantfilter"><b>{{ tr("Plant", language) }}:</b></label>
+    <select id="plantfilter" name="plant" onchange="this.form.submit()">
+      <option value="">{{ tr("All plants", language) }}</option>
+      {% for p in plants %}<option value="{{ p }}" {{ 'selected' if p==plant else '' }}>{{ p }}</option>{% endfor %}
+    </select>
+    <noscript><button class="btn" type="submit">{{ tr("Show", language) }}</button></noscript>
+  </form>
+</section>
+
+{% if plant %}
+<section class="card"><h2>📈 {{ tr("Crop health timeline", language) }} — {{ plant }}</h2>
+  {% if charts and (charts.health or charts.confidence or charts.severity) %}
+  <div class="grid">
+    {% if charts.health %}<div class="info"><h3>{{ tr("Crop Health Score", language) }}</h3>{{ charts.health }}</div>{% endif %}
+    {% if charts.severity %}<div class="info"><h3>{{ tr("Disease severity (0 healthy, 1 medium, 2 high)", language) }}</h3>{{ charts.severity }}</div>{% endif %}
+    {% if charts.confidence %}<div class="info"><h3>{{ tr("Confidence trend", language) }} (%)</h3>{{ charts.confidence }}</div>{% endif %}
+  </div>
+  {% else %}<p class="small">{{ tr("Not enough data yet", language) }} — {{ tr("scan the same plant at least twice to see a trend.", language) }}</p>{% endif %}
+</section>
+{% endif %}
+
+<section class="card"><h2>{{ tr("All scans", language) }} ({{ total }})</h2>
+{% if scans %}
+<div class="scan-grid">
+{% for s in scans %}
+  <a class="scan-card" href="{{ url_for('scan_detail', sid=s.id) }}">
+    <img src="{{ url_for('media', name=s.image) }}" alt="{{ s.plant }}" loading="lazy">
+    <div class="meta">
+      <b>{{ s.plant }}</b><br>
+      <span>{{ pretty(s.disease) }}</span><br>
+      <span class="pill {{ s.severity if s.severity in ('medium','high') else ('' if s.severity=='none' else 'na') }}">
+        {% if s.health_score is not none %}{{ tr("Health", language) }}: {{ s.health_score }}/100{% else %}{{ tr("Not enough data yet", language) }}{% endif %}</span><br>
+      <span class="small">{{ fmt(s.created_at) }} • {{ "%.0f"|format(s.confidence or 0) }}%</span>
+    </div>
+  </a>
+{% endfor %}
+</div>
+{% if pages > 1 %}<div class="pager">
+  {% if page > 1 %}<a class="btn alt" href="{{ url_for('scan_history', page=page-1, plant=plant) }}">←</a>{% endif %}
+  <span>{{ page }} / {{ pages }}</span>
+  {% if page < pages %}<a class="btn alt" href="{{ url_for('scan_history', page=page+1, plant=plant) }}">→</a>{% endif %}
+</div>{% endif %}
+{% else %}
+<p>{{ tr("No scans yet.", language) }}</p><a class="btn" href="{{ url_for('home') }}">🌱 {{ tr("Scan a plant", language) }}</a>
+{% endif %}
+</section>
+{% endblock %}

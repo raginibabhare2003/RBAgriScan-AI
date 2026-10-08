@@ -1,0 +1,31 @@
+# Render deployment. Set secrets in the Render dashboard (they are NOT stored in git).
+services:
+  - type: web
+    name: rbagriscan
+    env: python
+    buildCommand: pip install -r requirements.txt
+    # 1 worker keeps the TFLite model in memory once; threads handle concurrent requests (inference is lock-protected).
+    startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 120
+    envVars:
+      - key: FORCE_HTTPS
+        value: "true"
+      - key: SECRET_KEY
+        generateValue: true      # stable random secret: sessions survive restarts
+      - key: MYSQL_HOST
+        sync: false
+      - key: MYSQL_PORT
+        sync: false
+      - key: MYSQL_USER
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MYSQL_DATABASE
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: PLANTNET_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

@@ -1,0 +1,11 @@
+<!-- FILE PURPOSE: Satellite / drone analysis page for a field. Shows real data only; otherwise says it is not configured. -->
+{% extends "base.html" %}
+{% block title %}{{ f.name }} • {{ tr("Satellite / drone", language) }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="hero"><h1>🛰️ {{ tr("Satellite / drone", language) }} — {{ f.name }}</h1></section>
+<section class="card">
+{% if provider.configured %}<p>{{ tr("Provider is registered but has no data for this field yet.", language) }}</p>
+{% else %}<p><b>{{ tr("Satellite/drone analysis is not configured yet.", language) }}</b></p>
+<p class="small">{{ tr("When an imagery provider is connected, this page will show vegetation index, crop stress and affected-area maps for this field. Nothing is shown until real imagery is available.", language) }}</p>{% endif %}
+<a class="btn alt" href="{{ url_for('field_detail', fid=f.id) }}">← {{ f.name }}</a></section>
+{% endblock %}

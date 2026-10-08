@@ -1,0 +1,44 @@
+<!-- FILE PURPOSE: FARMER COMMUNITY feed + new post form. Private (login required, noindex). -->
+{% extends "base.html" %}
+{% block title %}{{ tr("Farmer Community", language) }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<style>
+.post{border:1px solid var(--border);border-radius:16px;padding:14px;margin:12px 0;background:#fff}
+.post img.pimg{width:100%;max-height:340px;object-fit:cover;border-radius:12px;margin-top:8px;display:block}
+.badge{display:inline-block;background:#dcfce7;color:#14532d;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:800;margin-left:4px}
+.badge.q{background:#dbeafe;color:#1e3a8a}.badge.warn{background:#fef3c7;color:#92400e}
+.body{white-space:pre-wrap;overflow-wrap:anywhere}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.cf input,.cf textarea,.cf select{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px;box-sizing:border-box}
+.pager{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+</style>
+<section class="hero"><h1>👨‍🌾 {{ tr("Farmer Community", language) }}</h1><p>{{ tr("Ask questions, share plant photos and help other farmers.", language) }}</p></section>
+<section class="card"><h2>✍️ {{ tr("New post", language) }}</h2>
+<form method="POST" action="{{ url_for('community_new') }}" enctype="multipart/form-data" class="cf">
+  <div class="row"><select name="kind" style="max-width:220px"><option value="question">❓ {{ tr("Question", language) }}</option><option value="post">📝 {{ tr("Post", language) }}</option></select>
+  <input name="plant" maxlength="100" placeholder="{{ tr('Plant (optional)', language) }}" style="flex:1;min-width:140px"></div>
+  <input name="title" maxlength="150" required minlength="3" placeholder="{{ tr('Title', language) }}" style="margin-top:8px">
+  <textarea name="body" maxlength="4000" required minlength="5" rows="4" placeholder="{{ tr('Describe your question or tip...', language) }}" style="margin-top:8px"></textarea>
+  <label class="small" style="display:block;margin-top:8px">📷 {{ tr("Plant photo (optional)", language) }}</label><input type="file" name="image" accept="image/png,image/jpeg,image/webp">
+  <button class="btn" type="submit" style="margin-top:10px">{{ tr("Post", language) }}</button>
+  {% if is_admin %}<a class="btn alt" href="{{ url_for('admin_community') }}" style="margin-top:10px">🛡️ {{ tr("Moderation", language) }}</a>{% endif %}
+</form></section>
+<div class="row"><a class="btn {{ '' if kind=='' else 'alt' }}" href="{{ url_for('community_feed') }}">{{ tr("All", language) }}</a>
+  <a class="btn {{ '' if kind=='question' else 'alt' }}" href="{{ url_for('community_feed', kind='question') }}">❓ {{ tr("Questions", language) }}</a>
+  <a class="btn {{ '' if kind=='post' else 'alt' }}" href="{{ url_for('community_feed', kind='post') }}">📝 {{ tr("Posts", language) }}</a></div>
+{% for p in posts %}
+<article class="post">
+  <div class="row"><b><a href="{{ url_for('community_post', pid=p.id) }}">{{ p.title }}</a></b>
+    {% if p.kind=='question' %}<span class="badge q">❓ {{ tr("Question", language) }}</span>{% endif %}
+    {% if p.status!='visible' %}<span class="badge warn">{{ tr("Hidden - under review", language) }}</span>{% endif %}</div>
+  <div class="small">{{ p.author }}{% if p.role=='agronomist' or p.author_admin %}<span class="badge">✔ {{ tr("Expert", language) }}</span>{% endif %} • {{ fmt(p.created_at) }}{% if p.plant %} • 🌱 {{ p.plant }}{% endif %}</div>
+  <div class="body">{{ p.body[:300] }}{{ '…' if p.body|length > 300 }}</div>
+  {% if p.image and p.status=='visible' %}<img class="pimg" src="{{ url_for('media', name=p.image) }}" alt="" loading="lazy">{% endif %}
+  <div class="row" style="margin-top:8px">
+    <form method="POST" action="{{ url_for('community_like', pid=p.id) }}"><button class="btn {{ '' if p.liked else 'alt' }}" type="submit" aria-label="{{ tr('Like', language) }}">👍 {{ p.likes }}</button></form>
+    <a class="btn alt" href="{{ url_for('community_post', pid=p.id) }}">💬 {{ p.comments }}</a>
+    {% if p.user_id == session.get('user_id') or is_admin %}<form method="POST" action="{{ url_for('community_delete_post', pid=p.id) }}" onsubmit="return confirm({{ tr('Delete this post?', language)|tojson }})"><button class="btn alt" type="submit">🗑️</button></form>{% endif %}
+  </div>
+</article>
+{% else %}<section class="card"><p>{{ tr("No posts yet. Be the first to post!", language) }}</p></section>{% endfor %}
+{% if pages > 1 %}<div class="pager">{% if page > 1 %}<a class="btn alt" href="{{ url_for('community_feed', page=page-1, kind=kind) }}">←</a>{% endif %}<span>{{ page }} / {{ pages }}</span>{% if page < pages %}<a class="btn alt" href="{{ url_for('community_feed', page=page+1, kind=kind) }}">→</a>{% endif %}</div>{% endif %}
+{% endblock %}

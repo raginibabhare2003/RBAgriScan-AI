@@ -1,0 +1,25 @@
+<!-- FILE PURPOSE: SUGGESTIONS PAGE. Hinglish: farmer app improvement ideas submit karta hai. -->
+{% extends "base.html" %}
+{% block title %}{{ texts.suggestion_title }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="card"><span class="section-label">{{ tr("Help Us Improve", language) }}</span><h1>💡 {{ texts.suggestion_title }}</h1><p>{{ texts.suggestion_text }}</p></section>
+<section class="card form">
+<form method="POST">
+<label>{{ texts.name }}</label><input name="name" value="{{ user or '' }}" required>
+<label>{{ texts.message }}</label><textarea name="message" placeholder="{{ texts.suggestion_placeholder }}" required></textarea>
+<button class="btn full">💡 {{ texts.send_suggestion }}</button>
+</form>
+</section>
+<section class="card">
+<h2>🗒️ {{ texts.recent_suggestions }}</h2>
+{% if items %}
+<div class="grid">
+{% for it in items %}
+<div class="info"><h3>👩‍🌾 {{ it.name }}</h3><p>{{ it.message }}</p></div>
+{% endfor %}
+</div>
+{% else %}
+<p class="small">{{ texts.no_suggestions }}</p>
+{% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,275 @@
+<!-- FILE PURPOSE: MAIN 2-IN-1 FARMING PAGE. Hinglish: Plant Detection aur Soil Detection ke separate UI panels, results, weather aur Gemini Assistant yahan render hote hain. -->
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>🌱 {{ texts.hero_title }}</h1>
+  <p>{{ texts.hero_text }}</p>
+</section>
+
+
+{% if user %}
+<!-- ===================== FARMER QUICK START ===================== -->
+<section class="card welcome" id="welcomeCard" hidden>
+  <h2>&#128075; {{ tr("Welcome, farmer!", language) }}</h2>
+  <ol class="welcome-steps">
+    <li>&#128247; {{ tr("Tap Scan Plant and take a photo of the leaf.", language) }}</li>
+    <li>&#128269; {{ tr("Read the result.", language) }}</li>
+    <li>&#9989; {{ tr("Follow the steps. Need help? Tap Voice Assistant and speak.", language) }}</li>
+  </ol>
+  <p><b>{{ tr("Choose your language", language) }}:</b></p>
+  <div class="welcome-langs">
+    <button type="button" data-gt="hi">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;</button><button type="button" data-gt="mr">&#2350;&#2352;&#2366;&#2336;&#2368;</button>
+    <button type="button" data-gt="gu">&#2711;&#2753;&#2716;&#2736;&#2750;&#2724;&#2752;</button><button type="button" data-gt="ta">&#2980;&#2990;&#3007;&#2996;&#3021;</button>
+    <button type="button" data-gt="te">&#3108;&#3142;&#3122;&#3137;&#3095;&#3137;</button><button type="button" data-gt="en">English</button>
+  </div>
+  <button class="btn" type="button" data-welcome-close>{{ tr("Got it", language) }}</button>
+</section>
+<section class="qs" id="quickStart" aria-label="{{ tr('What do you want to do?', language) }}">
+  <h2>{{ tr("What do you want to do?", language) }}</h2>
+  <div class="qs-grid">
+    <a class="qs-tile" href="#plant-detection"><span class="ic">&#128247;</span><b>{{ tr("Scan Plant", language) }}</b><small>{{ tr("Take a photo of a leaf", language) }}</small></a>
+    <a class="qs-tile qs-voice" href="#assistant"><span class="ic">&#127908;&#65039;</span><b>{{ tr("Ask by Voice", language) }}</b><small>{{ tr("Speak your question", language) }}</small></a>
+    <a class="qs-tile" href="#weather-section"><span class="ic">&#127782;&#65039;</span><b>{{ tr("Weather", language) }}</b><small>{{ tr("Rain, heat and disease risk", language) }}</small></a>
+    <a class="qs-tile" href="{{ url_for('fields_list') }}"><span class="ic">&#127806;</span><b>{{ tr("My Fields", language) }}</b><small>{{ tr("Track each field", language) }}</small></a>
+    <a class="qs-tile" href="{{ url_for('ticket_list') }}"><span class="ic">&#129658;</span><b>{{ tr("Expert Help", language) }}</b><small>{{ tr("Ask a plant doctor", language) }}</small></a>
+    <a class="qs-tile" href="{{ url_for('crop_list') }}"><span class="ic">&#127793;</span><b>{{ tr("My Crops", language) }}</b><small>{{ tr("Crop calendar and reminders", language) }}</small></a>
+  </div>
+  <p class="qs-more"><button type="button" class="linkbtn" data-open-features>{{ tr("See all features", language) }} &rarr;</button></p>
+  <ol class="steps"><li><i>&#128247;</i>{{ tr("1. Take a photo", language) }}</li><li><i>&#128269;</i>{{ tr("2. See the result", language) }}</li><li><i>&#9989;</i>{{ tr("3. Follow the advice", language) }}</li></ol>
+</section>
+{% endif %}
+{% if error %}<div class="error">⚠️ {{ error }}</div>{% endif %}
+
+<!-- ===================== AI DETECTION CHOOSER ===================== -->
+<section class="card detection-chooser">
+  <span class="section-label">🧠 {{ texts.ai_farming_tools }}</span>
+  <h2>{{ texts.choose_analysis }}</h2>
+  <p class="small">{{ texts.choose_analysis_help }}</p>
+  <div class="analysis-mode-buttons">
+    <button type="button" class="analysis-mode-btn active" data-target="plant-detection">
+      🌿 <span>{{ texts.scan_any_plant }}</span><small>{{ texts.plant_id_disease }}</small>
+    </button>
+    <button type="button" class="analysis-mode-btn" data-target="soil-detection">
+      🪨 <span>{{ texts.soil_analysis }}</span><small>{{ texts.soil_sub }}</small>
+    </button>
+  </div>
+</section>
+
+<!-- ===================== PLANT DETECTION ===================== -->
+<section id="plant-detection" class="card analysis-panel">
+  <span class="section-label">{{ texts.ai_screening }}</span>
+  <h2>🌿 {{ texts.upload_title }}</h2>
+  <p class="small">{{ texts.plant_scan_help }}</p>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% set _flds = my_fields() %}{% if _flds %}<p><label for="scanField"><b>🌾 {{ tr("Field", language) }}</b></label>
+      <select name="field_id" id="scanField" style="width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px"><option value="">— {{ tr("No field", language) }} —</option>{% for f in _flds %}<option value="{{ f.id }}">{{ f.name }} ({{ f.crop }})</option>{% endfor %}</select></p>{% endif %}
+    <div class="upload">
+      <input type="file" id="imageInput" name="image"
+             accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required>
+      <p><label class="btn" for="imageInput">📁 {{ texts.upload }}</label></p>
+      <img id="prev" class="preview" style="display:none" alt="{{ tr('Plant preview', language) }}">
+      <button class="btn full" type="submit">🔍 {{ texts.scan_plant }}</button>
+      <button class="btn alt full" type="button" id="openCameraBtn">📷 {{ texts.camera }}</button>
+    </div>
+  </form>
+  <p class="offline-note" id="offlineDetectNote" style="display:none">📡 {{ texts.offline_detection }}</p>
+  <!-- Hinglish: Camera se plant photo capture hone ke baad modal band hota hai aur result yahin dikhta hai. -->
+  <div id="cameraDetectionResult" class="card result camera-result-inline" style="display:none"></div>
+</section>
+
+<!-- ===================== PLANT RESULT: DIRECTLY BELOW PLANT UPLOAD ===================== -->
+{% if result %}
+<section id="plant-result" class="card result {% if result.unknown %}unknown{% endif %}">
+  <span class="section-label">🌱 {{ texts.identified_plant }}</span>
+  <h2>{{ texts.result }}</h2>
+  <div class="grid">
+    <div>
+      {% if image_url %}<img class="preview" src="{{ image_url }}" alt="{{ texts.uploaded }}">{% endif %}
+    </div>
+    <div>
+      {% if result.unknown %}
+        <h2>⚠️ {{ texts.unknown }}</h2>
+        <p>{{ tr(result.message, language) if result.message else texts.unknown_text }}</p>
+      {% else %}
+        <h2>🌱 {{ tr(result.plant, language) }}</h2>
+        <p><b>{{ texts.scientific_name }}:</b> {{ result.scientific_name or texts.not_available }}</p>
+        <p><b>{{ texts.disease }}:</b> {% if result.low_confidence %}{{ tr(result.message, language) }}{% else %}{{ tr(result.class, language) if result.class else texts.not_reliably_identified }}{% endif %}</p>
+        {% if result.health_score is defined and result.health_score is not none %}<p><b>{{ tr("Crop Health Score", language) }}:</b> {{ result.health_score }}/100 <span class="small">({{ tr("indicative", language) }})</span></p>
+        {% else %}<p class="small">{{ tr("Crop Health Score", language) }}: {{ tr("Not enough data yet", language) }}</p>{% endif %}
+        {% if result.scan_id %}<p><a class="btn alt" href="{{ url_for('scan_detail', sid=result.scan_id) }}">📷 {{ tr("Open in Scan History", language) }}</a></p>{% endif %}
+        <span class="pill">{{ "%.2f"|format(result.confidence or 0) }}% {{ texts.confidence }}</span>
+        <p class="small">🔎 {{ texts.analysis_source }}: {{ result.source or "AI" }}{% if result.gbif_id %} • GBIF: {{ result.gbif_id }}{% endif %}</p>
+        <button class="btn" type="button" data-listen="#plant-result,#precautions">&#128266; {{ tr("Listen", language) }}</button>
+        {% if disease_info %}<div class="firststeps"><h3>&#9989; {{ tr("Do this first", language) }}</h3><ol>{% for k in ['home','natural','prevention'] %}{% if disease_info[k] %}<li>{{ disease_info[k][0] }}</li>{% endif %}{% endfor %}</ol></div>{% endif %}
+        <p><a class="btn alt" href="{{ url_for('ticket_list') }}">&#129658; {{ tr("Not sure? Ask an expert", language) }}</a></p>
+        <button class="btn alt" type="button" id="shareResultBtn">📤 {{ texts.share_result }}</button>
+        {% if result.family %}<p class="small">{{ texts.family }}: {{ result.family }}{% if result.genus %} • {{ texts.genus }}: {{ result.genus }}{% endif %}</p>{% endif %}
+        {% if result.explanation %}<p>{{ result.explanation }}</p>{% endif %}
+        {% if result.gemini %}<p class="small">🤖 {{ texts.disease_analysis }}</p>{% endif %}
+        {% if result.local_disease %}<p class="small">🧠 {{ texts.local_model_matched }}</p>{% endif %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% if disease_info %}
+<section id="precautions" class="card">
+  <span class="section-label">{{ texts.disease_guidance }}</span>
+  <h2>🌿 {{ texts.precautions }}</h2>
+  <div class="grid">
+    {% for key,title in [('home_remedies','home'),('natural','natural'),('field','field'),('chemical','chemical'),('prevention','prevention')] %}
+    <div class="info">
+      <h3>{{ texts[key] }}</h3>
+      <ul>{% for x in disease_info[title] %}<li>{{ x }}</li>{% endfor %}</ul>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endif %}
+
+<!-- ===================== SOIL DETECTION ===================== -->
+<section id="soil-detection" class="card ai-soil-card analysis-panel">
+  <span class="section-label">🌍 {{ texts.ai_soil_title }}</span>
+  <h2>🪨 {{ texts.soil_analysis }}</h2>
+  <p class="small">{{ texts.soil_photo_help }}</p>
+
+  <form id="soilAnalysisForm" enctype="multipart/form-data">
+    <div class="soil-upload-grid">
+      <div class="upload">
+        <!-- Hinglish: Soil ke liye Upload aur Camera do alag clear options hain. -->
+        <input type="file" id="soilImageInput" name="image"
+               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+               required style="display:none">
+        <button class="btn full" type="button" id="soilUploadBtn">📁 {{ texts.upload_soil_photo }}</button>
+        <button class="btn alt full" type="button" id="openSoilCameraBtn">📷 {{ texts.capture_soil_camera }}</button>
+        <small>{{ texts.clear_soil }}</small>
+      </div>
+      <div>
+        <img id="soilPreview" class="preview soil-preview" style="display:none" alt="{{ tr('Soil preview', language) }}">
+        <button class="btn full" type="submit" id="soilAnalyzeBtn">🧠 {{ texts.analyze_soil_irrigation }}</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Soil result stays directly below the soil upload/analyze area -->
+  <div id="soilResult" class="soil-result" style="display:none"></div>
+  <div class="small soil-disclaimer">
+    ℹ️ {{ texts.soil_visual_disclaimer }}
+  </div>
+</section>
+
+<!-- ===================== WEATHER ===================== -->
+<section id="weather-section" class="card">
+  <span id="location" class="section-label">{{ texts.location_environment }}</span>
+  <h2>🌦️ {{ texts.weather }}</h2>
+  <p class="small">{{ texts.location_help }}</p>
+  <div class="grid">
+    <div><button class="btn" id="locateBtn" type="button">📍 {{ texts.location }}</button></div>
+    <div>
+      <input id="city" placeholder="{{ texts.city }}" style="padding:12px;width:100%;border:1px solid #cbd5e1;border-radius:8px">
+      <button class="btn full" id="cityWeatherBtn" type="button">🌦️ {{ texts.get_weather }}</button>
+    </div>
+  </div>
+  <div id="weatherResult" class="weatherbox" style="display:none;margin-top:15px"></div>
+</section>
+
+<!-- ===================== CHATBOT ===================== -->
+<section id="assistant" class="card va">
+  <span class="section-label">&#127908;&#65039; {{ tr("Voice Assistant", language) }}</span>
+  <h2>&#127908;&#65039; {{ tr("Voice Assistant", language) }}</h2>
+  <p class="small">{{ tr("Tap the big mic and speak. The assistant answers by voice. You can also say: open ChatGPT, open Gmail, show weather.", language) }}</p>
+  <div class="va-lang"><label for="vaLang">{{ tr("I speak", language) }}:</label> <select id="vaLang" aria-label="{{ tr('I speak', language) }}"></select></div>
+  <div class="va-micwrap"><button type="button" id="vaMic" class="va-mic" aria-label="{{ tr('Tap and speak', language) }}">&#127908;&#65039;</button></div>
+  <div id="vaStatus" class="va-status" role="status" aria-live="polite">{{ tr("Tap the mic and speak", language) }}</div>
+  <div id="chatBox" class="va-box" aria-live="polite"></div>
+  <div id="vaAppCard" class="va-appcard" hidden></div>
+  <div class="va-chips" id="vaChips">
+    <button type="button" data-q="My tomato leaves are turning yellow. What should I do?">&#127813; {{ tr("Yellow tomato leaves", language) }}</button>
+    <button type="button" data-q="Show weather">&#127782;&#65039; {{ tr("Show weather", language) }}</button>
+    <button type="button" data-q="Open ChatGPT">&#128172; {{ tr("Open ChatGPT", language) }}</button>
+    <button type="button" data-q="Open Gmail">&#9993;&#65039; {{ tr("Open Gmail", language) }}</button>
+  </div>
+  <form id="chatForm" class="va-form">
+    <input id="chatInput" placeholder="{{ texts.chat_placeholder }}" autocomplete="off">
+    <input type="file" id="chatPhoto" accept="image/png,image/jpeg,image/webp" hidden>
+    <input type="file" id="chatCameraInput" accept="image/*" capture="environment" hidden>
+    <button class="btn alt" type="button" id="chatAttach" title="{{ texts.attach_photo }}" aria-label="{{ texts.attach_photo }}">&#128206;</button>
+    <button class="btn alt" type="button" id="chatCameraBtn" title="{{ tr('Take a photo', language) }}" aria-label="{{ tr('Take a photo', language) }}">&#128247;</button>
+    <button class="btn" type="submit">{{ texts.send }}</button>
+  </form>
+  <div class="small va-meta"><span id="chatPhotoInfo"></span> <button type="button" id="chatPhotoClear" class="btn alt" hidden style="padding:2px 10px">{{ texts.remove_photo }}</button>
+    <label class="va-speak"><input type="checkbox" id="chatSpeak" checked> &#128266; {{ tr("Voice replies", language) }}</label> <span id="voiceHint" role="status"></span></div>
+  <h3 class="va-appstitle">{{ tr("Open an app", language) }}</h3>
+  <div class="va-apps" id="vaApps"></div>
+  <p class="small">{{ tr("The assistant gives general farming help. For serious crop problems ask an expert.", language) }}</p>
+</section>
+
+<!-- ===================== SOIL CAMERA MODAL ===================== -->
+<div id="soilCam" class="camera" style="display:none">
+  <div class="cameraBox">
+    <button class="btn red" type="button" data-soil-cam-close>✕</button>
+    <h2>📷 {{ texts.capture_soil_photo }}</h2>
+    <p>{{ texts.soil_camera_help }}</p>
+    <video id="soilVideo" autoplay playsinline muted></video>
+    <canvas id="soilCanvas" style="display:none"></canvas>
+    <div style="margin-top:12px">
+      <button class="btn" type="button" data-soil-cam-capture>📸 {{ texts.capture }}</button>
+      <button class="btn alt" type="button" data-soil-cam-flip>🔄 {{ texts.flip_camera }}</button>
+      <button class="btn alt" type="button" data-soil-cam-close>{{ texts.close }}</button>
+    </div>
+    <div id="soilCamResult"></div>
+  </div>
+</div>
+
+<div id="cam" class="camera">
+  <div class="cameraBox">
+    <button class="btn red" type="button" data-cam-close>✕</button>
+    <h2>📷 {{ texts.camera }}</h2>
+    <p>{{ texts.camera_help }}</p>
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas" style="display:none"></canvas>
+    <div style="margin-top:12px">
+      <button class="btn" type="button" data-cam-capture>📸 {{ texts.capture }}</button>
+      <button class="btn alt" type="button" data-cam-flip>🔄 {{ texts.flip_camera }}</button>
+      <button class="btn alt" type="button" data-cam-close>{{ texts.close }}</button>
+    </div>
+    <div id="camResult"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var note = document.getElementById('offlineDetectNote');
+  function sync(){
+    if (!note) return;
+    note.style.display = navigator.onLine ? 'none' : 'block';
+  }
+  window.addEventListener('online', sync);
+  window.addEventListener('offline', sync);
+  sync();
+
+  // Two clear modes: clicking a mode scrolls to that detector.
+  document.querySelectorAll('.analysis-mode-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.analysis-mode-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var target = document.getElementById(btn.dataset.target);
+      if (target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+
+  // If a plant result exists after POST, show the result first and keep
+  // the soil detector below it in the requested order.
+  {% if result %}
+  var plantResult = document.getElementById('plant-result');
+  if (plantResult) {
+    setTimeout(function(){ plantResult.scrollIntoView({behavior:'smooth', block:'start'}); }, 150);
+  }
+  {% endif %}
+});
+</script>
+{% endblock %}

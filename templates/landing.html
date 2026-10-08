@@ -1,0 +1,24 @@
+<!-- FILE PURPOSE: PUBLIC landing page (indexable by search engines). Logged-in users see the scanner at the same URL. -->
+{% extends "base.html" %}
+{% block title %}RBAgriScan - {{ tr("AI Plant Scanner for Farmers", language) }}{% endblock %}
+{% block meta_description %}{{ tr("Scan a plant with your phone camera, identify it and get disease guidance, weather advisories and farm tools in your own language.", language) }}{% endblock %}
+{% block extra_head %}
+<link rel="canonical" href="{{ request.url_root.rstrip('/') }}/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"RBAgriScan","applicationCategory":"AgricultureApplication","operatingSystem":"Any","description":"AI plant identification and crop disease screening for farmers","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+{% endblock %}
+{% block content %}
+<section class="hero"><h1>🌱 {{ tr("Scan a plant. Understand its health.", language) }}</h1>
+  <p>{{ tr("Identify plants and get disease guidance, weather advisories and farm tools in your own language.", language) }}</p>
+  <p><a class="btn" href="{{ url_for('register') }}">🌱 {{ tr("Scan Plant", language) }} — {{ texts.register }}</a> <a class="btn alt" href="{{ url_for('login') }}">{{ texts.login }}</a></p></section>
+<section class="card"><h2>{{ tr("What you can do", language) }}</h2>
+<div class="grid">
+  <div class="info"><h3>📷 {{ tr("Scan Plant", language) }}</h3><p>{{ tr("Take a photo or upload one. Non-plant photos are rejected instead of guessed.", language) }}</p></div>
+  <div class="info"><h3>🤖 {{ tr("AI Assistant", language) }}</h3><p>{{ tr("Ask farming questions by text, photo or voice.", language) }}</p></div>
+  <div class="info"><h3>🌦️ {{ tr("Weather", language) }}</h3><p>{{ tr("Forecast and estimated disease risk. Advisories only, never guarantees.", language) }}</p></div>
+  <div class="info"><h3>🌾 {{ tr("My Fields", language) }}</h3><p>{{ tr("Track each field: scans, health timeline, sensors and PDF reports.", language) }}</p></div>
+  <div class="info"><h3>👨‍🌾 {{ tr("Farmer Community", language) }}</h3><p>{{ tr("Ask questions and share photos with other farmers and experts.", language) }}</p></div>
+  <div class="info"><h3>🌍 {{ tr("Your language", language) }}</h3><p>{{ tr("Use the app in many languages.", language) }}</p></div>
+</div>
+<p><a href="{{ url_for('supported_plants') }}">{{ tr("See supported plants", language) }}</a> • <a href="{{ url_for('about') }}">{{ texts.about }}</a></p>
+<p class="small">{{ texts.safe_note }}</p></section>
+{% endblock %}

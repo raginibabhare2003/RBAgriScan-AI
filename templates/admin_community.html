@@ -1,0 +1,14 @@
+<!-- FILE PURPOSE: Admin moderation queue for reported / auto-hidden community content. -->
+{% extends "base.html" %}
+{% block title %}{{ tr("Community moderation", language) }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<section class="hero"><h1>🛡️ {{ tr("Community moderation", language) }}</h1><p>{{ tr("Content is hidden automatically after several reports until you review it.", language) }}</p></section>
+{% macro actions(kind, id) %}
+<form method="POST" action="{{ url_for('admin_community_action', kind=kind, tid=id, action='restore') }}" style="display:inline"><button class="btn" type="submit">✔ {{ tr("Restore", language) }}</button></form>
+<form method="POST" action="{{ url_for('admin_community_action', kind=kind, tid=id, action='delete') }}" style="display:inline" onsubmit="return confirm({{ tr('Delete permanently?', language)|tojson }})"><button class="btn alt" type="submit">🗑️ {{ tr("Delete", language) }}</button></form>
+{% endmacro %}
+<section class="card"><h2>{{ tr("Posts", language) }}</h2>
+{% for p in posts %}<div class="info"><b>{{ p.title }}</b> — {{ p.author }} • {{ tr("Reports", language) }}: {{ p.report_count }} • {{ p.status }}<p style="white-space:pre-wrap;overflow-wrap:anywhere">{{ p.body[:400] }}</p>{{ actions('post', p.id) }}</div>{% else %}<p>{{ tr("Nothing to review.", language) }}</p>{% endfor %}</section>
+<section class="card"><h2>{{ tr("Comments", language) }}</h2>
+{% for c in comments %}<div class="info">{{ c.author }} • {{ tr("Reports", language) }}: {{ c.report_count }} • {{ c.status }}<p style="white-space:pre-wrap;overflow-wrap:anywhere">{{ c.body }}</p><a href="{{ url_for('community_post', pid=c.post_id) }}">{{ tr("Open post", language) }}</a><br>{{ actions('comment', c.id) }}</div>{% else %}<p>{{ tr("Nothing to review.", language) }}</p>{% endfor %}</section>
+{% endblock %}

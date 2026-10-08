@@ -1,0 +1,168 @@
+<!-- FILE PURPOSE: COMMON LAYOUT. Hinglish: logo, navbar, language selector, PWA links, common CSS/JS aur footer sab pages ko yahan se milta hai. -->
+<!doctype html>
+<html lang="{{ language }}" dir="{{ text_dir }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>{% block title %}{{ texts.brand }} - Smart Farming AI{% endblock %}</title>
+<meta name="description" content="{% block meta_description %}AI-powered plant identification and crop disease screening for farmers worldwide. Works offline as an installable app, in 100+ languages.{% endblock %}">
+<meta name="theme-color" content="#14532d">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RBAgriScan">
+<meta name="format-detection" content="telephone=no">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RBAgriScan">
+<meta property="og:title" content="{{ self.title()|striptags|trim }}">
+<meta property="og:description" content="{{ self.meta_description()|striptags|trim }}">
+<meta property="og:locale" content="{{ language|replace('-','_') }}">
+<meta property="og:image" content="{{ url_for('static', filename='icons/icon-512.png') }}">
+<meta name="twitter:card" content="summary">
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32.png') }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/favicon-16.png') }}">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+<div id="connBanner" class="conn-banner" role="status" aria-live="polite"></div>
+<nav class="rbnav" aria-label="Main menu">
+  <a class="rbnav-logo" href="{{ url_for('home') }}"><span class="rbnav-badge">&#127793;</span><span class="rbnav-brand"><b>{{ texts.brand }}</b><small>{{ tr('Smart farming helper', language) }}</small></span></a>
+  <button class="rbnav-toggle" type="button" id="rbnavToggle" aria-expanded="false" aria-controls="rbnavMenu" aria-label="{{ texts.nav_menu }}">&#9776;</button>
+  <div class="rbnav-menu" id="rbnavMenu">
+    <div class="rbnav-main">
+    {% if user %}
+      <a href="{{ url_for('home') }}#plant-detection" class="{{ 'is-active' if request.path=='/' else '' }}"><i>&#128247;</i>{{ tr('Scan Plant', language) }}</a>
+      <a href="{{ url_for('home') }}#assistant"><i>&#127908;&#65039;</i>{{ tr('Voice Assistant', language) }}</a>
+      <a href="{{ url_for('home') }}#weather-section"><i>&#127782;&#65039;</i>{{ tr('Weather', language) }}</a>
+      <a href="{{ url_for('fields_list') }}" class="{{ 'is-active' if request.path.startswith('/fields') else '' }}"><i>&#127806;</i>{{ tr('My Fields', language) }}</a>
+      <a href="{{ url_for('ticket_list') }}" class="{{ 'is-active' if request.path.startswith('/experts') else '' }}"><i>&#129658;</i>{{ tr('Expert Help', language) }}</a>
+    {% else %}
+      <a href="{{ url_for('home') }}" class="{{ 'is-active' if request.path=='/' else '' }}"><i>&#127968;</i>{{ texts.home }}</a>
+      <a href="{{ url_for('supported_plants') }}" class="{{ 'is-active' if request.path==url_for('supported_plants') else '' }}"><i>&#127806;</i>{{ texts.nav_plants }}</a>
+      <a href="{{ url_for('about') }}" class="{{ 'is-active' if request.path==url_for('about') else '' }}"><i>&#8505;&#65039;</i>{{ texts.about }}</a>
+      <a href="{{ url_for('contact') }}" class="{{ 'is-active' if request.path==url_for('contact') else '' }}"><i>&#128222;</i>{{ texts.nav_contact }}</a>
+    {% endif %}
+      <div class="rbnav-more" id="rbnavMore">
+        <button type="button" class="rbnav-morebtn" id="rbnavMoreBtn" aria-expanded="false" aria-haspopup="true" aria-controls="rbnavDrop"><i>&#9776;</i>{{ tr('Features', language) }} <span aria-hidden="true">&#9662;</span></button>
+        <div class="rbnav-drop" id="rbnavDrop">
+          <a href="{{ url_for('home') }}"><i>&#127968;</i>{{ texts.home }}</a>
+          {% if user %}
+          <div class="rbnav-group">{{ tr('My Farm', language) }}</div>
+          <a href="{{ url_for('scan_history') }}" class="{{ 'is-active' if request.path.startswith('/history') else '' }}"><i>&#128190;</i>{{ tr('Scan History', language) }}</a>
+          <a href="{{ url_for('crop_list') }}" class="{{ 'is-active' if request.path.startswith('/crops') else '' }}"><i>&#127793;</i>{{ texts.my_crops }}</a>
+          <a href="{{ url_for('iot_dashboard') }}" class="{{ 'is-active' if request.path.startswith('/iot') else '' }}"><i>&#128225;</i>{{ texts.iot_sensors }}</a>
+          <a href="{{ url_for('dashboard') }}" class="{{ 'is-active' if request.path.startswith('/dashboard') else '' }}"><i>&#128202;</i>{{ texts.dashboard }}</a>
+          <div class="rbnav-group">{{ tr('Connect', language) }}</div>
+          <a href="{{ url_for('community_feed') }}" class="{{ 'is-active' if request.path.startswith('/community') else '' }}"><i>&#128105;&#8205;&#127806;</i>{{ tr('Farmer Community', language) }}</a>
+          {% endif %}
+          <a href="{{ url_for('supported_plants') }}" class="{{ 'is-active' if request.path==url_for('supported_plants') else '' }}"><i>&#127806;</i>{{ texts.nav_plants }}</a>
+          <div class="rbnav-group">{{ tr('Help', language) }}</div>
+          <a href="{{ url_for('suggestions') }}" class="{{ 'is-active' if request.path==url_for('suggestions') else '' }}"><i>&#128161;</i>{{ texts.nav_suggestions }}</a>
+          <a href="{{ url_for('feedback') }}" class="{{ 'is-active' if request.path==url_for('feedback') else '' }}"><i>&#11088;</i>{{ texts.feedback }}</a>
+          <a href="{{ url_for('contact') }}" class="{{ 'is-active' if request.path==url_for('contact') else '' }}"><i>&#128222;</i>{{ texts.nav_contact }}</a>
+          <a href="{{ url_for('about') }}" class="{{ 'is-active' if request.path==url_for('about') else '' }}"><i>&#8505;&#65039;</i>{{ texts.about }}</a>
+          {% if is_admin %}
+          <div class="rbnav-group">{{ tr('Admin', language) }}</div>
+          <a href="{{ url_for('admin_panel') }}"><i>&#128737;&#65039;</i>{{ texts.admin }}</a>
+          <a href="{{ url_for('admin_community') }}"><i>&#128737;&#65039;</i>{{ tr('Moderation', language) }}</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="rbnav-right">
+      <div class="google-translate-wrap" title="Translate the page with Google Translate">&#127760; <span class="google-translate-label">{{ tr('Google Translate', language) }}</span><div id="google_translate_element"></div></div>
+      {% if user %}
+      <a class="rbnav-bell {{ 'is-active' if request.path.startswith('/notifications') else '' }}" href="{{ url_for('notifications_page') }}" aria-label="{{ tr('Notifications', language) }}">&#128276;<span id="notifBadge" style="display:none"></span></a>
+      <a class="rbnav-cta" href="{{ url_for('logout') }}"><i>&#128682;</i>{{ texts.logout }}</a>
+      {% else %}
+      <a class="rbnav-cta" href="{{ url_for('login') }}"><i>&#128273;</i>{{ texts.login }}</a>
+      <a class="rbnav-cta alt" href="{{ url_for('register') }}">{{ texts.register }}</a>
+      {% endif %}
+      <button id="installBtn" class="btn install-btn" type="button">&#11015;&#65039; {{ texts.nav_install }}</button>
+    </div>
+  </div>
+</nav>
+{% block body %}
+<div class="wrap">
+{% with messages=get_flashed_messages(with_categories=true) %}{% for cat,msg in messages %}<div class="flash {{cat}}">{{msg}}</div>{% endfor %}{% endwith %}
+{% block content %}{% endblock %}
+</div>
+{% endblock %}
+{% if user %}<nav class="rbbottom" aria-label="Quick menu">
+  <a href="{{ url_for('home') }}#plant-detection"><i>&#128247;</i><span>{{ tr('Scan', language) }}</span></a>
+  <a href="{{ url_for('home') }}#assistant"><i>&#127908;&#65039;</i><span>{{ tr('Voice', language) }}</span></a>
+  <a href="{{ url_for('home') }}#weather-section"><i>&#127782;&#65039;</i><span>{{ tr('Weather', language) }}</span></a>
+  <a href="{{ url_for('fields_list') }}"><i>&#127806;</i><span>{{ tr('Fields', language) }}</span></a>
+  <button type="button" id="rbbottomMore"><i>&#9776;</i><span>{{ tr('More', language) }}</span></button>
+</nav>{% endif %}
+<footer>🌱 {{ texts.brand }} • {{ texts.farmer_ai_screening }} • {{ texts.safe_note }}</footer>
+<div id="updateToast" class="update-toast">🔄 {{ texts.nav_refresh }} <button type="button">{{ texts.nav_refresh }}</button></div>
+<script>
+window.APP_TEXTS = {{ ui_json|safe }};
+window.CSRF_TOKEN = {{ csrf_token|tojson }};
+window.APP_LANGUAGE = {{ language|tojson }};
+window.APP_LANGUAGES = {{ languages|tojson }};
+
+(function(){
+  const CACHE_PREFIX='rbagriscan:i18n:v6:';
+  const MAX_CACHE_AGE=1000*60*60*24*30;
+  function readCache(lang){
+    try{
+      const raw=localStorage.getItem(CACHE_PREFIX+lang); if(!raw) return null;
+      const item=JSON.parse(raw);
+      if(!item || Date.now()-Number(item.ts||0)>MAX_CACHE_AGE) return null;
+      return item.texts||null;
+    }catch(e){return null;}
+  }
+  function writeCache(lang,texts){
+    try{localStorage.setItem(CACHE_PREFIX+lang,JSON.stringify({ts:Date.now(),texts:texts}));}catch(e){}
+  }
+  window.getCachedLanguage=readCache;
+  window.cacheLanguage=function(lang,texts){if(lang&&texts) writeCache(lang,texts);};
+  window.prefetchLanguage=function(lang){
+    if(!lang || lang===window.APP_LANGUAGE) return;
+    if(readCache(lang)) return;
+    fetch('/api/ui-translations/'+encodeURIComponent(lang),{credentials:'same-origin',cache:'no-store'})
+      .then(r=>r.json()).then(d=>{if(d && d.texts) writeCache(lang,d.texts);}).catch(()=>{});
+  };
+  window.switchLanguage=async function(lang){
+    if(!lang) return;
+    const next=window.location.pathname+window.location.search;
+    const cached=readCache(lang);
+    // Store the preference immediately so every subsequent request uses it.
+    document.cookie='rbagriscan_lang='+encodeURIComponent(lang)+'; Max-Age=31536000; Path=/; SameSite=Lax'+(location.protocol==='https:'?'; Secure':'');
+    if(cached){
+      // A cached dictionary means the next server-rendered page is normally a
+      // single fast request. Navigate rather than partially translating a page;
+      // this keeps dynamic forms/results consistent too.
+      location.assign('/set-language/'+encodeURIComponent(lang)+'?next='+encodeURIComponent(next));
+      return;
+    }
+    // First use: warm the server cache before navigation. The server batches
+    // translation requests instead of translating hundreds of strings one-by-one.
+    const select=document.getElementById('languageSwitcher');
+    if(select) select.disabled=true;
+    try{
+      const r=await fetch('/api/ui-translations/'+encodeURIComponent(lang),{credentials:'same-origin',cache:'no-store'});
+      const d=await r.json(); if(d && d.texts) writeCache(lang,d.texts);
+    }catch(e){}
+    location.assign('/set-language/'+encodeURIComponent(lang)+'?next='+encodeURIComponent(next));
+  };
+})();
+</script>
+<script>
+function googleTranslateElementInit(){
+  new google.translate.TranslateElement({pageLanguage:{{ language|tojson }},autoDisplay:false,multilanguagePage:true},'google_translate_element');
+}
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
+<script src="{{ url_for('static', filename='js/voice_commands.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

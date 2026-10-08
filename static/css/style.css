@@ -1,0 +1,465 @@
+/* ============================================================
+   RBAgriScan GLOBAL DESIGN / CSS
+   Hinglish: Is file se project ka look-and-feel control hota hai:
+   navbar, logo area, cards, buttons, forms, Plant/Soil panels,
+   chatbot, dashboard aur mobile responsive design.
+   ============================================================ */
+:root{--green:#166534;--green2:#22c55e;--dark:#0f3d24;--mint:#ecfdf5;--cream:#f7faf7;--ink:#17251b;--muted:#64748b;--card:#ffffff;--border:#dce8df;--shadow:0 12px 32px rgba(15,61,36,.09)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,Arial,'Noto Sans Devanagari',sans-serif;background:linear-gradient(180deg,#f0fdf4 0,#f8faf9 52%,#fff 100%);color:var(--ink)}
+
+/* ---------- Nav ---------- */
+.nav{position:sticky;top:0;z-index:50;background:rgba(15,61,36,.96);backdrop-filter:blur(12px);padding:12px 4%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.14)}
+.brand{font-size:21px;font-weight:900;margin-right:auto;letter-spacing:-.3px;color:#fff}
+.nav a,.nav select{color:#14532d;background:#fff;padding:9px 11px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,.25);font-weight:750;font-size:13px;transition:.2s}
+.nav a:hover{transform:translateY(-1px);background:#dcfce7}
+.nav select{max-width:165px;cursor:pointer}
+.nav-logo{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none}
+.nav-logo .badge{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#22c55e,#15803d);display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 6px 16px rgba(21,128,61,.35);flex:none}
+.nav-logo .brandtext{display:flex;flex-direction:column;line-height:1.15}
+.nav-logo .brandtext b{color:#fff;font-size:18px;font-weight:900;letter-spacing:-.3px}
+.nav-logo .brandtext span{color:#bbf7d0;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.nav-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nav a.is-active{background:#0f3d24;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.4)}
+.nav-toggle{display:none;flex-direction:column;justify-content:center;align-items:center;gap:4px;width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);cursor:pointer;flex:none}
+.nav-toggle span{display:block;width:18px;height:2px;background:#fff;border-radius:2px}
+.nav-lang{font-weight:700}
+
+/* ---------- Layout ---------- */
+.wrap{width:92%;max-width:1180px;margin:28px auto}
+.hero{position:relative;overflow:hidden;text-align:center;padding:45px 25px;margin-bottom:20px;border-radius:26px;background:linear-gradient(135deg,#14532d,#15803d 58%,#22c55e);color:#fff;box-shadow:0 18px 45px rgba(20,83,45,.22)}
+.hero:after{content:"🌿";position:absolute;right:7%;bottom:-18px;font-size:90px;opacity:.14;transform:rotate(-12deg)}
+.hero h1{font-size:42px;margin:8px;color:#fff;letter-spacing:-1px}
+.hero p{font-size:17px;color:#dcfce7;max-width:780px;margin:12px auto;line-height:1.6}
+.hero .count{display:inline-block;margin-top:18px;padding:9px 15px;border-radius:999px;background:rgba(255,255,255,.15);font-weight:800}
+.card{background:rgba(255,255,255,.96);padding:28px;border:1px solid var(--border);border-radius:22px;margin:20px 0;box-shadow:var(--shadow);scroll-margin-top:90px}
+.card h2{margin-top:0;color:var(--dark)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.section-label{display:inline-block;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:900;margin-bottom:7px}
+main.wrap{display:block}
+
+/* ---------- Upload / detection ---------- */
+.upload{border:2px dashed #4ade80;background:linear-gradient(180deg,#f0fdf4,#fff);padding:38px;text-align:center;border-radius:18px;transition:.2s}
+.upload:hover{border-color:#15803d;transform:translateY(-2px)}
+.btn{display:inline-block;border:0;background:linear-gradient(135deg,#15803d,#16a34a);color:#fff;padding:12px 18px;border-radius:11px;font-weight:800;cursor:pointer;text-decoration:none;box-shadow:0 7px 18px rgba(21,128,61,.18);transition:.2s}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.03)}
+.btn.alt{background:#475569}
+.btn.red{background:#dc2626}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.full{width:100%;margin-top:15px}
+.preview{max-width:100%;max-height:360px;border-radius:16px;margin-top:18px;box-shadow:0 10px 28px rgba(0,0,0,.12)}
+.result{border-left:6px solid #16a34a}
+.unknown{border-left-color:#f97316;background:#fff7ed}
+.pill{display:inline-block;background:#dcfce7;color:#166534;padding:8px 13px;border-radius:20px;font-weight:800}
+.info{background:linear-gradient(180deg,#f8fafc,#fff);padding:20px;border:1px solid #e2e8f0;border-radius:16px;transition:.2s}
+.info:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.06)}
+.info h3{color:#166534;margin-top:0}
+.info li{margin:9px 0;line-height:1.55}
+.error{background:#fee2e2;color:#991b1b;padding:13px;border-radius:11px;border:1px solid #fecaca}
+.flash{padding:13px;border-radius:11px;background:#dcfce7;margin:10px 0}
+.flash.error{background:#fee2e2}
+
+/* ---------- Forms ---------- */
+.form{max-width:520px;margin:40px auto}
+.form input,.form textarea,input{padding:12px;border:1px solid #cbd5e1;border-radius:10px}
+.form input,.form textarea{width:100%;margin:7px 0 15px}
+.form textarea{min-height:140px}
+.small{color:#64748b;font-size:14px}
+.stars{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:4px;font-size:30px;margin:4px 0 15px}
+.stars input{display:none}
+.stars label{color:#d1d5db;cursor:pointer;transition:.15s}
+.stars input:checked ~ label,.stars label:hover,.stars label:hover ~ label{color:#f59e0b}
+
+/* ---------- Tables ---------- */
+.table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden}
+.table th,.table td{padding:12px;border-bottom:1px solid #e2e8f0;text-align:left}
+.table.scroll{display:block;overflow:auto}
+.table th{background:#f0fdf4}
+
+/* ---------- Camera ---------- */
+.camera{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:90;align-items:center;justify-content:center;padding:15px}
+.cameraBox{background:white;border-radius:22px;padding:22px;width:min(700px,96%);text-align:center;box-shadow:0 20px 60px #0008}
+.cameraBox video{width:100%;max-height:65vh;background:#111;border-radius:14px}
+
+/* ---------- Misc widgets ---------- */
+.weatherbox{background:linear-gradient(135deg,#ecfeff,#f0fdf4);border-left:5px solid #0891b2;padding:18px;border-radius:13px}
+.stat{padding:20px;background:#f0fdf4;border:1px solid #dcfce7;border-radius:16px;text-align:center}
+.stat b{font-size:28px;color:#15803d}
+footer{margin-top:45px;padding:28px;text-align:center;background:#0f3d24;color:#dcfce7}
+footer a{color:#bbf7d0}
+
+/* Plants We Detect page */
+.crop{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.icon{width:48px;height:48px;border-radius:14px;background:#dcfce7;display:grid;place-items:center;font-size:25px}
+.crop h2{margin:0;color:#0f3d24;font-size:22px}
+.note{font-size:13px;color:#64748b;margin-bottom:14px}
+.disease{display:flex;gap:9px;align-items:flex-start;padding:10px 0;border-top:1px solid #eef2ef;line-height:1.45}
+.disease:first-of-type{border-top:0}
+.dot{color:#16a34a;font-weight:900}
+.back{display:inline-block;margin-top:24px;background:#166534;color:white;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:800}
+
+/* ---------- PWA / connectivity UI ---------- */
+.conn-banner{display:none;position:sticky;top:0;z-index:60;text-align:center;padding:9px 14px;font-weight:700;font-size:13px}
+.conn-banner.show{display:block}
+.conn-banner.offline{background:#fef3c7;color:#92400e;border-bottom:1px solid #fde68a}
+.conn-banner.online{background:#dcfce7;color:#166534;border-bottom:1px solid #bbf7d0}
+.install-btn{display:none;align-items:center;gap:6px}
+.install-btn.show{display:inline-flex}
+.update-toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#0f3d24;color:#fff;padding:12px 18px;border-radius:14px;box-shadow:0 14px 32px rgba(0,0,0,.28);display:none;align-items:center;gap:12px;z-index:200;font-size:14px}
+.update-toast.show{display:flex}
+.update-toast button{border:0;background:#22c55e;color:#0f3d24;padding:7px 12px;border-radius:9px;font-weight:800;cursor:pointer}
+.offline-note{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:12px 14px;border-radius:12px;font-size:13px;margin-top:10px}
+
+/* ---------- Responsive ---------- */
+@media(max-width:980px){.nav a{font-size:12px;padding:8px 9px}.nav select{max-width:140px}}
+@media(max-width:700px){
+  .brand{width:100%;text-align:center;margin-bottom:4px}
+  .hero h1{font-size:30px}
+  .card{padding:19px;border-radius:18px}
+  .nav{justify-content:center}
+  .nav a{font-size:12px}
+  .nav select{max-width:100%;width:100%}
+  .wrap{width:94%}
+  .nav-toggle{display:flex}
+  .nav-links{display:none;width:100%;order:3;flex-direction:column;align-items:stretch;background:rgba(15,61,36,.98);border-radius:14px;padding:10px;margin-top:8px}
+  .nav-links.open{display:flex}
+  .nav-links a,.nav-links select{width:100%;text-align:left}
+}
+@media(max-width:980px){
+  .nav-toggle{display:flex}
+  .nav-links{display:none;width:100%;order:3;flex-direction:column;align-items:stretch;background:rgba(15,61,36,.98);border-radius:14px;padding:10px;margin-top:8px}
+  .nav-links.open{display:flex}
+  .nav-links a,.nav-links select{width:100%;text-align:left}
+}
+/* Comfortable tap targets + no accidental zoom on inputs, for a native mobile feel */
+@media(max-width:700px){
+  .btn,.nav a,.nav select,.form input,.form textarea{font-size:16px}
+  input,textarea,select,button{min-height:44px}
+}
+
+/* ---------- RTL languages (Arabic, Urdu, Persian, Hebrew, etc.) ---------- */
+[dir="rtl"] body{direction:rtl}
+[dir="rtl"] .nav-links a,[dir="rtl"] .nav-links select{text-align:right}
+[dir="rtl"] .disease .dot,[dir="rtl"] .stars{direction:ltr}
+[dir="rtl"] .hero:after{right:auto;left:7%}
+
+
+/* AI Soil & Irrigation photo module */
+.ai-soil-card{border:1px solid #dbeafe;box-shadow:0 14px 35px rgba(15,23,42,.08);background:linear-gradient(135deg,#fff,#f0fdf4)}
+.ai-soil-card h2{margin-bottom:6px}
+.soil-upload-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:center;margin-top:14px}
+.soil-drop{min-height:190px;border:2px dashed #94a3b8;border-radius:18px;padding:25px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;background:rgba(255,255,255,.8);transition:.2s}
+.soil-drop:hover{transform:translateY(-2px);border-color:#16a34a;background:#f8fafc}
+.soil-drop input{display:none}
+.soil-drop span{font-size:42px;margin-bottom:8px}
+.soil-drop b{font-size:18px}
+.soil-drop small{margin-top:6px;opacity:.7}
+.soil-preview{max-height:190px;width:100%;object-fit:cover;border-radius:14px;margin-bottom:12px}
+.soil-result{margin-top:18px;padding:18px;border-radius:16px;background:#fff;border:1px solid #dbeafe}
+.soil-result-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.soil-result-head h3{margin:0}
+.soil-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.soil-metrics>div{padding:12px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0}
+.soil-metrics b,.soil-metrics span{display:block}
+.soil-metrics span{margin-top:5px;font-weight:600}
+.soil-warning,.soil-disclaimer{margin-top:12px;padding:10px;border-radius:10px;background:#fffbeb}
+@media(max-width:700px){
+ .soil-upload-grid{grid-template-columns:1fr}
+ .soil-metrics{grid-template-columns:repeat(2,1fr)}
+ .soil-result-head{align-items:flex-start;flex-direction:column}
+}
+
+/* Modern password reset */
+.auth-card{max-width:520px;margin:40px auto;padding:32px;border-radius:24px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 20px 55px rgba(15,23,42,.10);text-align:center}
+.auth-icon{width:68px;height:68px;margin:0 auto 14px;border-radius:20px;display:grid;place-items:center;font-size:34px;background:#ecfdf5}
+.auth-card h1{margin:0 0 8px}
+.muted{color:#64748b}
+.password-form{text-align:left;margin-top:22px}
+.password-form label{display:block;font-weight:700;margin:14px 0 7px}
+.password-form input{width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid #cbd5e1;border-radius:12px;outline:none}
+.password-form input:focus{border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.10)}
+.password-meter{height:6px;background:#e2e8f0;border-radius:99px;margin-top:8px;overflow:hidden}
+.password-meter span{display:block;height:100%;width:0%;transition:.25s}
+.reset-success{margin-top:20px;padding:20px;border-radius:18px;background:#f0fdf4;border:1px solid #bbf7d0}
+.reset-success-icon{font-size:34px}
+.reset-success h3{margin:8px 0}
+.reset-success .btn{display:block;text-decoration:none;margin:14px 0}
+.auth-back{margin-top:20px}
+.auth-back a{text-decoration:none}
+
+/* ================= RBAgriScan 2-in-1 Detection UI ================= */
+.detection-chooser {
+  text-align: center;
+  background: linear-gradient(135deg, rgba(34,197,94,.08), rgba(14,165,233,.08));
+}
+.analysis-mode-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.analysis-mode-btn {
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  background: #fff;
+  padding: 16px;
+  cursor: pointer;
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.analysis-mode-btn:hover,
+.analysis-mode-btn.active {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15,23,42,.10);
+  border-color: #16a34a;
+}
+.analysis-mode-btn span { font-weight: 800; font-size: 1.05rem; }
+.analysis-mode-btn small { opacity: .72; }
+.analysis-panel { scroll-margin-top: 90px; }
+#plant-result { scroll-margin-top: 90px; }
+.soil-result { scroll-margin-top: 90px; }
+.chat-answer { margin-top: 7px; line-height: 1.55; }
+.chat-heading { margin: 10px 0 5px; }
+.chat-bullet { margin: 3px 0; padding-left: 4px; }
+.chat-spacer { height: 5px; }
+.chat-answer hr { border: 0; border-top: 1px solid #e2e8f0; margin: 9px 0; }
+
+@media (max-width: 640px) {
+  .analysis-mode-buttons { grid-template-columns: 1fr; }
+  .analysis-mode-btn { padding: 14px; }
+}
+
+
+/* Final responsive hardening */
+html,body{max-width:100%;overflow-x:hidden}.wrap{min-width:0}.table{width:100%;max-width:100%;display:block;overflow-x:auto}.preview{max-width:100%;height:auto}.card,.hero,.grid,.info{min-width:0}.btn{max-width:100%;white-space:normal}.nav-links{min-width:0}.nav-lang{min-width:130px}@media(max-width:900px){.nav{padding:10px 3%}.nav-toggle{display:flex;margin-left:auto}.nav-links{display:none;width:100%;flex-direction:column;align-items:stretch}.nav-links.open{display:flex}.nav-links a,.nav-links select,.nav-links button{width:100%;text-align:center}.hero h1{font-size:32px}.card{padding:20px}.grid{grid-template-columns:1fr}.analysis-mode-buttons{grid-template-columns:1fr}}@media(max-width:600px){.hero{padding:30px 16px;border-radius:18px}.hero h1{font-size:27px}.upload{padding:24px 14px}.card{margin:14px 0;padding:16px;border-radius:16px}.btn{width:100%;text-align:center}.soil-metrics{grid-template-columns:1fr}.cameraBox{width:96%;max-height:92vh;overflow:auto}.camera video{max-height:55vh}}
+
+/* responsive safeguards (added): nothing may force horizontal page scroll */
+img,video,canvas{max-width:100%;height:auto}svg{max-width:100%}
+.table.scroll{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+pre,code{overflow-x:auto;max-width:100%}.card,.info,.stat,main{min-width:0}body{overflow-wrap:break-word}
+.btn{touch-action:manipulation}input,select,textarea,button{font-size:16px}
+
+
+/* =========================================================
+   RBAgriScan mobile-first polish
+   Keeps existing desktop UI intact and improves small screens.
+   ========================================================= */
+html { -webkit-text-size-adjust: 100%; }
+body { overflow-x: hidden; }
+img, video, canvas { max-width: 100%; }
+
+.chat-tool-btn{
+  min-width:46px;
+  min-height:46px;
+  padding:10px 12px;
+  touch-action:manipulation;
+}
+
+@media (max-width: 700px) {
+  body { font-size: 15px; }
+  .container, main, .page, .content, .wrap {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .navbar, nav { padding-left: 10px !important; padding-right: 10px !important; }
+  .nav-links, .nav-menu {
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+
+  h1 { font-size: clamp(1.55rem, 7vw, 2.2rem); line-height: 1.15; }
+  h2 { font-size: clamp(1.25rem, 5.5vw, 1.65rem); }
+  h3 { font-size: 1.05rem; }
+
+  .grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .card, .upload, .cameraBox, .weatherbox {
+    border-radius: 14px;
+  }
+  .card { padding: 14px !important; }
+
+  .btn, button.btn, a.btn {
+    min-height: 46px;
+    box-sizing: border-box;
+    touch-action: manipulation;
+  }
+
+  input, select, textarea {
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 16px !important; /* prevents iOS zoom */
+  }
+
+  .upload input[type="file"] { max-width: 100%; }
+  .preview {
+    width: 100%;
+    max-height: 48vh;
+    object-fit: contain;
+    border-radius: 12px;
+  }
+
+  #chatBox {
+    max-height: 46vh !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #chatForm {
+    display: grid !important;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 6px !important;
+    align-items: center;
+  }
+  #chatInput {
+    min-width: 0 !important;
+    width: 100%;
+  }
+  #chatForm .chat-tool-btn,
+  #chatForm #chatMic,
+  #chatForm button[type="submit"] {
+    width: auto;
+    min-width: 46px;
+    padding: 10px;
+  }
+  #chatForm button[type="submit"] {
+    font-size: 0;
+  }
+  #chatForm button[type="submit"]::after {
+    content: "➤";
+    font-size: 18px;
+  }
+
+  #chatPhotoInfo {
+    display: inline-block;
+    max-width: 78vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .result-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cameraBox video, .cameraBox .preview {
+    width: 100%;
+    max-height: 55vh;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 380px) {
+  #chatForm { grid-template-columns: 1fr auto auto; }
+  #chatForm #chatMic { grid-column: 2; }
+  #chatForm button[type="submit"] { grid-column: 3; }
+  .chat-tool-btn { min-width: 42px; padding: 8px; }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .cameraBox video, .cameraBox .preview { max-height: 68vh; }
+}
+
+/* Google Translate: works across desktop, tablet and mobile. */
+.google-translate-wrap{display:flex;align-items:center;gap:6px;background:#fff;color:#14532d;border-radius:10px;padding:5px 8px;font-size:12px;font-weight:800;min-height:38px}
+.google-translate-label{white-space:nowrap}
+.google-translate-wrap .goog-te-gadget{font-family:inherit !important;font-size:0 !important;color:transparent !important}
+.google-translate-wrap .goog-te-gadget select{font-family:inherit !important;font-size:13px !important;color:#14532d !important;background:#fff !important;border:0 !important;outline:0 !important;max-width:170px}
+body > .skiptranslate{display:none !important}
+.goog-te-banner-frame{display:none !important}
+@media(max-width:980px){.google-translate-wrap{width:100%;justify-content:center}.google-translate-wrap .goog-te-gadget select{max-width:100%;width:100%;min-height:40px}}
+@media(max-width:700px){.google-translate-wrap{padding:6px 8px;border-radius:12px}.google-translate-label{font-size:13px}.google-translate-wrap .goog-te-gadget select{font-size:16px !important;min-height:44px}}
+
+/* ======================================================================
+   RBAgriScan - simple farmer-first UI: navbar, quick start, Voice Assistant
+   ====================================================================== */
+[hidden]{display:none !important}
+.rbnav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 4%;background:rgba(15,61,36,.97);backdrop-filter:blur(10px);box-shadow:0 6px 24px rgba(0,0,0,.14)}
+.rbnav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;flex:none}
+.rbnav-badge{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#22c55e,#15803d);display:flex;align-items:center;justify-content:center;font-size:21px;flex:none}
+.rbnav-brand b{display:block;font-size:18px;font-weight:900;line-height:1.1;color:#fff}.rbnav-brand small{display:block;color:#bbf7d0;font-size:11px;font-weight:600}
+.rbnav-toggle{display:none;margin-left:auto;width:46px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;font-size:22px;cursor:pointer}
+.rbnav-menu{display:flex;flex:1;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.rbnav-main,.rbnav-right{display:flex;align-items:center;gap:8px}
+.rbnav-main>a,.rbnav-morebtn,.rbnav-cta,.rbnav-bell{display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:8px 12px;border-radius:12px;background:#fff;color:#14532d;font-size:14px;font-weight:800;text-decoration:none;border:0;cursor:pointer;white-space:nowrap;font-family:inherit}
+.rbnav i{font-style:normal}
+.rbnav a.is-active{background:#bbf7d0;box-shadow:inset 0 0 0 2px #22c55e}
+.rbnav-cta{background:#22c55e;color:#052e16}.rbnav-cta.alt{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.55)}
+.rbnav-more{position:relative}
+.rbnav-drop{display:none;position:absolute;right:0;top:calc(100% + 8px);min-width:260px;max-height:70vh;overflow:auto;background:#fff;border-radius:16px;padding:8px;box-shadow:0 18px 40px rgba(0,0,0,.25);z-index:60}
+.rbnav-more.open .rbnav-drop{display:block}
+.rbnav-drop a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;color:#14532d;text-decoration:none;font-weight:700;font-size:15px}
+.rbnav-drop a:hover,.rbnav-drop a:focus-visible{background:#f0fdf4}
+.rbnav-group{padding:8px 12px 2px;font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#6b7280}
+.rbnav-bell #notifBadge{margin-left:2px;background:#dc2626;color:#fff;border-radius:999px;padding:1px 7px;font-size:12px;font-weight:800}
+.rbnav a:focus-visible,.rbnav button:focus-visible{outline:3px solid #fde047;outline-offset:2px}
+.rbnav .google-translate-wrap{min-height:42px;border-radius:12px}
+@media(max-width:1180px){
+  .rbnav-toggle{display:block}
+  .rbnav-menu{display:none;width:100%;order:3;flex-direction:column;align-items:stretch;background:rgba(15,61,36,.98);border-radius:16px;padding:10px;margin-top:6px;max-height:calc(100vh - 90px);overflow:auto}
+  .rbnav-menu.open{display:flex}
+  .rbnav-main,.rbnav-right{flex-direction:column;align-items:stretch}
+  .rbnav-main>a,.rbnav-morebtn,.rbnav-cta,.rbnav-bell{width:100%;justify-content:flex-start;min-height:48px;font-size:16px}
+  .rbnav-more{width:100%}.rbnav-drop{position:static;box-shadow:none;margin-top:6px;max-height:none;background:#f0fdf4}
+  .rbnav-right .google-translate-wrap{width:100%}
+}
+.rbbottom{display:none}
+@media(max-width:900px){
+  .rbbottom{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:45;background:#fff;border-top:1px solid #d1fae5;box-shadow:0 -6px 20px rgba(0,0,0,.1);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+  .rbbottom a,.rbbottom button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;color:#14532d;font-size:11px;font-weight:800;text-decoration:none;padding:6px 2px;min-height:52px;cursor:pointer;font-family:inherit}
+  .rbbottom i{font-style:normal;font-size:22px}
+  body.has-bottombar{padding-bottom:78px}
+}
+/* quick start */
+.qs{margin:18px 0}.qs h2{margin:0 0 12px;font-size:24px;color:#14532d}
+.qs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.qs-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;padding:18px 10px;min-height:132px;background:#fff;border:2px solid #bbf7d0;border-radius:20px;text-decoration:none;color:#14532d;box-shadow:0 6px 18px rgba(20,83,45,.08)}
+.qs-tile:active{transform:scale(.98)}.qs-tile .ic{font-size:40px;line-height:1}.qs-tile b{font-size:17px}.qs-tile small{color:#4b5563;font-size:13px}
+.qs-voice{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border-color:#15803d}.qs-voice small{color:#dcfce7}
+@media(max-width:560px){.qs-grid{grid-template-columns:repeat(2,1fr)}}
+.qs-more{text-align:center;margin:6px 0 0}.linkbtn{background:none;border:0;color:#15803d;font-weight:800;font-size:15px;text-decoration:underline;cursor:pointer;min-height:44px;font-family:inherit}
+.steps{display:flex;gap:10px;list-style:none;padding:0;margin:12px 0 0;flex-wrap:wrap}
+.steps li{flex:1;min-width:150px;display:flex;align-items:center;gap:8px;background:#f0fdf4;border-radius:14px;padding:12px;font-weight:800;color:#14532d}.steps i{font-style:normal;font-size:24px}
+.welcome{background:#ecfdf5;border:2px solid #86efac}.welcome-steps{padding-left:22px;font-size:17px;line-height:1.7}
+.welcome-langs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}
+.welcome-langs button{padding:12px 18px;font-size:18px;font-weight:800;border-radius:14px;border:2px solid #22c55e;background:#fff;color:#14532d;cursor:pointer;min-height:48px;font-family:inherit}
+/* voice assistant */
+.va-lang{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}.va-lang select{padding:10px;border-radius:10px;border:1px solid #cbd5e1;min-height:44px;max-width:100%}
+.va-micwrap{display:flex;justify-content:center;margin:12px 0 4px}
+.va-mic{width:112px;height:112px;border-radius:50%;border:0;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;font-size:48px;cursor:pointer;box-shadow:0 10px 30px rgba(21,128,61,.45);transition:.2s}
+.va-mic.is-listening{background:linear-gradient(135deg,#ef4444,#b91c1c);animation:vapulse 1.2s infinite}.va-mic.is-off{background:#9ca3af;box-shadow:none}
+@keyframes vapulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.55)}100%{box-shadow:0 0 0 26px rgba(239,68,68,0)}}
+.va-status{text-align:center;font-weight:800;color:#14532d;min-height:26px;margin-bottom:8px;overflow-wrap:anywhere}
+.va-box{max-height:340px;overflow:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:10px;margin-bottom:10px}.va-box:empty{display:none}
+.va-msg{margin:8px 0;padding:10px 12px;border-radius:14px;overflow-wrap:anywhere}.va-me{background:#dcfce7;margin-left:12%}.va-bot{background:#fff;border:1px solid #e5e7eb;margin-right:6%}.va-err{border-color:#fecaca;background:#fef2f2}
+.va-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.va-actions .btn{padding:8px 12px;font-size:14px}
+.va-appcard{margin:10px 0}.va-appcard-in{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#eff6ff;border:2px solid #93c5fd;border-radius:16px;padding:12px}.va-appcard .ic{font-size:34px}
+.va-chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.va-chips button{padding:10px 14px;border-radius:999px;border:1px solid #86efac;background:#f0fdf4;color:#14532d;font-weight:700;cursor:pointer;min-height:44px;font-size:14px;font-family:inherit}
+.va-form{display:flex;gap:8px;flex-wrap:wrap}.va-form input#chatInput{flex:1;min-width:150px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;min-height:44px}
+.va-meta{margin-top:6px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.va-speak{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.va-appstitle{margin:16px 0 8px;font-size:16px}.va-apps{display:flex;gap:8px;flex-wrap:wrap}
+.va-app{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;background:#fff;border:1px solid #d1d5db;color:#14532d;font-weight:800;text-decoration:none;min-height:44px}
+.va-cam{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:12px}
+.va-cam-box{background:#111;border-radius:16px;padding:10px;width:min(560px,100%);max-height:100%;overflow:auto}
+.va-cam-box video,.va-cam-still{width:100%;max-height:60vh;object-fit:contain;border-radius:12px;background:#000;display:block}
+.va-cam-msg{color:#fecaca;padding:8px;font-weight:700;text-align:center}.va-cam-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.firststeps{background:#fffbeb;border:2px solid #fcd34d;border-radius:14px;padding:10px 14px;margin:12px 0}.firststeps h3{margin:0 0 4px}.firststeps ol{margin:0;padding-left:22px;font-size:16px;line-height:1.6}

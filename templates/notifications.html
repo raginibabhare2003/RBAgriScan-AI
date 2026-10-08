@@ -1,0 +1,30 @@
+<!-- FILE PURPOSE: In-app notification centre (own notifications only). Text is rendered server-side in the viewer's language. -->
+{% extends "base.html" %}
+{% block title %}{{ tr("Notifications", language) }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<style>
+.notif{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--border);border-radius:14px;margin:10px 0;background:#fff;color:inherit;text-decoration:none}
+.notif.unread{background:#f0fdf4;border-color:#86efac}.notif .ic{font-size:24px;line-height:1}.notif .tx{min-width:0;flex:1}
+.notif .tx b{display:block}.notif .tx span{overflow-wrap:anywhere}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.pager{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+</style>
+<section class="hero"><h1>🔔 {{ tr("Notifications", language) }}</h1><p>{{ tr("Reminders and alerts about your crops, sensors and expert replies.", language) }}</p></section>
+<section class="card">
+  <div class="actions">
+    <form method="POST" action="{{ url_for('notifications_read_all') }}"><button class="btn" type="submit">✔ {{ tr("Mark all as read", language) }}</button></form>
+    <form method="POST" action="{{ url_for('notifications_clear') }}"><button class="btn alt" type="submit">🗑️ {{ tr("Clear read", language) }}</button></form>
+    <a class="btn alt" href="{{ url_for('notification_settings') }}">⚙️ {{ tr("Settings", language) }}</a>
+  </div>
+  {% if items %}
+    {% for n in items %}
+    <a class="notif {{ 'unread' if n.unread else '' }}" href="{{ url_for('notification_open', nid=n.id) }}">
+      <span class="ic">{{ n.icon }}</span>
+      <span class="tx"><b>{{ n.title }}</b><span>{{ n.body }}</span><br><span class="small">{{ fmt(n.created_at, "%d %b %Y, %H:%M") }}</span></span>
+    </a>
+    {% endfor %}
+    {% if pages > 1 %}<div class="pager">
+      {% if page > 1 %}<a class="btn alt" href="{{ url_for('notifications_page', page=page-1) }}">←</a>{% endif %}<span>{{ page }} / {{ pages }}</span>
+      {% if page < pages %}<a class="btn alt" href="{{ url_for('notifications_page', page=page+1) }}">→</a>{% endif %}</div>{% endif %}
+  {% else %}<p>{{ tr("No notifications yet.", language) }}</p>{% endif %}
+</section>
+{% endblock %}

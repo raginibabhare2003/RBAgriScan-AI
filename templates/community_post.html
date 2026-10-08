@@ -1,0 +1,45 @@
+<!-- FILE PURPOSE: One community post with comments, replies, like, report, delete. Private (noindex). -->
+{% extends "base.html" %}
+{% block title %}{{ p.title }} • {{ tr("Farmer Community", language) }}{% endblock %}
+{% block content %}
+<style>
+.badge{display:inline-block;background:#dcfce7;color:#14532d;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:800;margin-left:4px}.badge.warn{background:#fef3c7;color:#92400e}
+.body{white-space:pre-wrap;overflow-wrap:anywhere}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.cm{border-left:3px solid #86efac;padding:6px 12px;margin:10px 0;background:#f8fafc;border-radius:0 12px 12px 0}.cm .cm{margin-left:14px;border-left-color:#bfdbfe}
+.cf input,.cf textarea,.cf select{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;box-sizing:border-box}
+</style>
+<section class="card">
+  <div class="row"><h1 style="margin:0;font-size:24px">{{ p.title }}</h1>{% if p.status!='visible' %}<span class="badge warn">{{ tr("Hidden - under review", language) }}</span>{% endif %}</div>
+  <div class="small">{{ p.author }}{% if p.role=='agronomist' or p.author_admin %}<span class="badge">✔ {{ tr("Expert", language) }}</span>{% endif %} • {{ fmt(p.created_at) }}{% if p.plant %} • 🌱 {{ p.plant }}{% endif %}</div>
+  <p class="body">{{ p.body }}</p>
+  {% if p.image and (p.status=='visible' or p.user_id==session.get('user_id') or is_admin) %}<img src="{{ url_for('media', name=p.image) }}" alt="" style="width:100%;max-height:420px;object-fit:contain;border-radius:12px;background:#f1f5f9">{% endif %}
+  <div class="row" style="margin-top:10px">
+    {% if p.status=='visible' %}<form method="POST" action="{{ url_for('community_like', pid=p.id) }}"><button class="btn {{ '' if liked else 'alt' }}" type="submit">👍 {{ likes }}</button></form>{% endif %}
+    {% if p.user_id != session.get('user_id') and p.status=='visible' %}
+    <form method="POST" action="{{ url_for('community_report_post', pid=p.id) }}" class="row"><select name="reason" aria-label="{{ tr('Reason', language) }}" style="padding:9px;border-radius:10px;border:1px solid #cbd5e1">{% for r in reasons %}<option value="{{ r }}">{{ tr(r|capitalize, language) }}</option>{% endfor %}</select><button class="btn alt" type="submit">🚩 {{ tr("Report", language) }}</button></form>{% endif %}
+    {% if p.user_id == session.get('user_id') or is_admin %}<form method="POST" action="{{ url_for('community_delete_post', pid=p.id) }}" onsubmit="return confirm({{ tr('Delete this post?', language)|tojson }})"><button class="btn alt" type="submit">🗑️ {{ tr("Delete", language) }}</button></form>{% endif %}
+  </div>
+</section>
+<section class="card"><h2>💬 {{ tr("Comments", language) }}</h2>
+{% macro comment(c, reply) %}
+<div class="cm" id="c{{ c.id }}">
+  <div class="small"><b>{{ c.author }}</b>{% if c.role=='agronomist' or c.author_admin %}<span class="badge">✔ {{ tr("Expert", language) }}</span>{% endif %} • {{ fmt(c.created_at) }}{% if c.status!='visible' %} <span class="badge warn">{{ tr("Hidden - under review", language) }}</span>{% endif %}</div>
+  <div class="body">{{ c.body }}</div>
+  <div class="row" style="margin-top:6px">
+    {% if c.user_id != session.get('user_id') %}<form method="POST" action="{{ url_for('community_report_comment', cid=c.id) }}"><input type="hidden" name="reason" value="other"><button class="btn alt" type="submit" style="padding:4px 10px">🚩</button></form>{% endif %}
+    {% if c.user_id == session.get('user_id') or is_admin %}<form method="POST" action="{{ url_for('community_delete_comment', cid=c.id) }}"><button class="btn alt" type="submit" style="padding:4px 10px">🗑️</button></form>{% endif %}
+  </div>
+  {% if not reply and p.status=='visible' %}
+  <details style="margin-top:6px"><summary class="small">↩ {{ tr("Reply", language) }}</summary>
+    <form method="POST" action="{{ url_for('community_comment', pid=p.id) }}" class="cf"><input type="hidden" name="parent_id" value="{{ c.id }}"><textarea name="body" maxlength="1000" required rows="2"></textarea><button class="btn" type="submit" style="margin-top:6px">{{ tr("Reply", language) }}</button></form></details>
+  {% endif %}
+  {% if not reply %}{% for r in replies.get(c.id, []) %}{{ comment(r, true) }}{% endfor %}{% endif %}
+</div>
+{% endmacro %}
+{% for c in top %}{{ comment(c, false) }}{% else %}<p>{{ tr("No comments yet.", language) }}</p>{% endfor %}
+{% if p.status=='visible' %}
+<form method="POST" action="{{ url_for('community_comment', pid=p.id) }}" class="cf" style="margin-top:12px"><textarea name="body" maxlength="1000" required rows="3" placeholder="{{ tr('Write a comment...', language) }}"></textarea><button class="btn" type="submit" style="margin-top:8px">{{ tr("Comment", language) }}</button></form>
+{% endif %}
+</section>
+<p><a class="btn alt" href="{{ url_for('community_feed') }}">← {{ tr("Farmer Community", language) }}</a></p>
+{% endblock %}

@@ -1,0 +1,50 @@
+<!-- FILE PURPOSE: FARMS & FIELDS list + add form. Only the logged-in user's own fields (server-side filtered). -->
+{% extends "base.html" %}
+{% block title %}{{ tr("My Fields", language) }} • {{ texts.brand }}{% endblock %}
+{% block content %}
+<style>
+.field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.field-card{display:block;color:inherit;text-decoration:none;border:1px solid var(--border);border-radius:16px;padding:14px;background:#fff}
+.field-card h3{margin:0 0 4px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.fgrid label{display:block;font-weight:700;font-size:14px;margin-bottom:4px}
+.fgrid input,.fgrid textarea{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px;box-sizing:border-box}
+</style>
+<section class="hero"><h1>🌾 {{ tr("My Fields", language) }}</h1><p>{{ tr("Organise your farm into fields. Each field keeps its own scans, health timeline, sensors and reports.", language) }}</p></section>
+
+<div class="grid">
+  <div class="stat"><b>{{ total }}</b><br>{{ tr("Fields", language) }}</div>
+  <div class="stat"><b>{{ "%g"|format(total_area) }}</b><br>{{ tr("Total acres", language) }}</div>
+</div>
+
+<section class="card"><h2>➕ {{ tr("Add a field", language) }}</h2>
+<form method="POST" action="{{ url_for('fields_list') }}">
+  <div class="fgrid">
+    <div><label for="farm_name">{{ tr("Farm name", language) }}</label><input id="farm_name" name="farm_name" maxlength="120" placeholder="{{ tr('e.g. Home Farm', language) }}"></div>
+    <div><label for="fname">{{ tr("Field name", language) }} *</label><input id="fname" name="name" maxlength="120" required placeholder="{{ tr('e.g. Field A', language) }}"></div>
+    <div><label for="fcrop">{{ tr("Crop", language) }} *</label><input id="fcrop" name="crop" maxlength="120" required list="cropnames" placeholder="{{ tr('e.g. Tomato', language) }}">
+      <datalist id="cropnames">{% for c in ["Tomato","Potato","Wheat","Rice","Maize","Cotton","Soybean","Onion","Chilli","Grapes","Mango","Banana","Apple","Sugarcane","Groundnut"] %}<option value="{{ c }}">{% endfor %}</datalist></div>
+    <div><label for="farea">{{ tr("Area (acres)", language) }}</label><input id="farea" name="area_acres" inputmode="decimal" placeholder="2"></div>
+  </div>
+  <div style="margin-top:10px"><label for="fnotes" style="font-weight:700;font-size:14px">{{ tr("Notes", language) }}</label><textarea id="fnotes" name="notes" maxlength="500" rows="2" style="width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px;box-sizing:border-box"></textarea></div>
+  <button class="btn" type="submit" style="margin-top:12px">{{ tr("Add field", language) }}</button>
+</form></section>
+
+{% if farms %}
+{% for farm, items in farms.items() %}
+<section class="card"><h2>🏡 {{ farm if farm else tr("Ungrouped fields", language) }}</h2>
+<div class="field-grid">
+{% for f in items %}
+  <a class="field-card" href="{{ url_for('field_detail', fid=f.id) }}">
+    <h3>{{ f.name }}</h3>
+    <div>🌱 {{ f.crop }}{% if f.area is not none %} • {{ "%g"|format(f.area) }} {{ tr("acres", language) }}{% endif %}</div>
+    <div class="small">{{ tr("Scans", language) }}: {{ f.scans }}</div>
+    <div><b>{{ tr("Health", language) }}:</b> {% if f.latest is not none %}{{ f.latest }}/100{% else %}<span class="small">{{ tr("Not enough data yet", language) }}</span>{% endif %}</div>
+  </a>
+{% endfor %}
+</div></section>
+{% endfor %}
+{% else %}
+<section class="card"><p>{{ tr("No fields yet. Add your first field above.", language) }}</p></section>
+{% endif %}
+{% endblock %}

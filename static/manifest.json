@@ -1,0 +1,81 @@
+{
+  "id": "/",
+  "name": "RBAgriScan - Smart Farming AI",
+  "short_name": "RBAgriScan",
+  "description": "AI-powered plant disease detection plus soil and irrigation photo screening for farmers, with multilingual assistant and PWA support.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
+  "background_color": "#f0fdf4",
+  "theme_color": "#14532d",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": [
+    "agriculture",
+    "productivity",
+    "utilities",
+    "education"
+  ],
+  "icons": [
+    {
+      "src": "/static/icons/favicon-16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan a plant",
+      "short_name": "Scan",
+      "description": "Jump straight to the detection uploader",
+      "url": "/#detection",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "My scan history",
+      "short_name": "History",
+      "description": "Open your dashboard",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
